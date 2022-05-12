@@ -1,18 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/controllers/audio_player_controller.dart';
 import 'package:gosheno/app/ui/theme/app_color.dart';
 import 'package:gosheno/app/ui/theme/app_text_theme.dart';
 import 'package:gosheno/app/ui/widgets/seek_bar.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 
 class AudioPlayerScreen extends GetView<AudioPlayerController> {
   const AudioPlayerScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final item = controller.audioSource.tag as MediaItem;
     return Scaffold(
       body: Container(
         color: kGreenAccentColor,
@@ -24,11 +23,14 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                   color: Colors.black,
                   child: Opacity(
                     opacity: 0.45,
-                    child: CachedNetworkImage(
-                      imageUrl: item.artUri.toString(),
-                      height: Get.height * 0.7 - 30,
-                      width: Get.width,
-                      fit: BoxFit.cover,
+                    child: Obx(
+                      () => CachedNetworkImage(
+                        imageUrl:
+                            controller.currentSong.value.artUri.toString(),
+                        height: Get.height * 0.7 - 30,
+                        width: Get.width,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
@@ -48,24 +50,27 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                     ),
                   ),
                 ),
-                Container(
-                  height: Get.height * 0.7,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        style: kBodyMedium.copyWith(color: kWhiteColor),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(item.artist!, style: kWhiteText),
-                      const SizedBox(height: 20),
-                      Text(item.displayDescription!, style: kWhiteText),
-                    ],
-                  ),
-                ),
+                Obx(() {
+                  final item = controller.currentSong.value;
+                  return Container(
+                    height: Get.height * 0.7,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.title,
+                          style: kBodyMedium.copyWith(color: kWhiteColor),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(item.artist!, style: kWhiteText),
+                        const SizedBox(height: 20),
+                        Text(item.displayDescription!, style: kWhiteText),
+                      ],
+                    ),
+                  );
+                }),
                 const SeekBar(),
               ],
             ),
@@ -83,7 +88,15 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                             controller.seekTo10Second(false);
                           },
                           icon: const Icon(Icons.replay_10_rounded),
-                          iconSize: 32,
+                          // iconSize: 28,
+                          color: kWhiteColor,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            controller.seekToPrevious();
+                          },
+                          icon: const Icon(FeatherIcons.skipBack),
+                          iconSize: 36,
                           color: kWhiteColor,
                         ),
                         Obx(() {
@@ -101,28 +114,34 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                           } else if (controller.buttonNotifier.value ==
                               ButtonState.paused) {
                             return IconButton(
-                              icon:
-                                  const Icon(Icons.play_circle_outline_rounded),
+                              icon: const Icon(FeatherIcons.playCircle),
                               iconSize: 64,
                               color: kWhiteColor,
-                              onPressed: controller.player.value.play,
+                              onPressed: controller.player.play,
                             );
                           } else {
                             return IconButton(
-                              icon: const Icon(
-                                  Icons.pause_circle_outline_outlined),
+                              icon: const Icon(FeatherIcons.pauseCircle),
                               iconSize: 64,
                               color: kWhiteColor,
-                              onPressed: controller.player.value.pause,
+                              onPressed: controller.player.pause,
                             );
                           }
                         }),
                         IconButton(
                           onPressed: () {
+                            controller.seekToNext();
+                          },
+                          icon: const Icon(FeatherIcons.skipForward),
+                          iconSize: 36,
+                          color: kWhiteColor,
+                        ),
+                        IconButton(
+                          onPressed: () {
                             controller.seekTo10Second(true);
                           },
                           icon: const Icon(Icons.forward_10_rounded),
-                          iconSize: 32,
+                          // iconSize: 28,
                           color: kWhiteColor,
                         ),
                       ],
@@ -137,7 +156,7 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                               onTap: () {
                                 controller.speedIndex =
                                     controller.speedList.indexOf(index);
-                                controller.player.value.setSpeed(index);
+                                controller.player.setSpeed(index);
                                 _.update();
                               },
                               child: Container(
@@ -149,15 +168,18 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                                           controller.speedIndex
                                       ? kBodyText.copyWith(
                                           color: kAmberColor,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w900,
                                         )
-                                      : kBodyText.copyWith(color: kWhiteColor),
+                                      : kBodyText.copyWith(
+                                          color: kWhiteColor,
+                                          fontWeight: FontWeight.w900,
+                                        ),
                                 ),
                               ),
                             );
                           }).toList(),
                         );
-                        //   SizedBox(
+                        //   SizedBox(-
                         //   width: Get.width,
                         //   height: 60,
                         //   child: ListView.separated(

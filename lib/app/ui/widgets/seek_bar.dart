@@ -19,10 +19,14 @@ class SeekBar extends StatelessWidget {
         child: GetX<AudioPlayerController>(
           builder: (controller) {
             final position = controller.progressNotifier.value;
-            Duration _remaining = position.total - position.current;
-            String totalTime = position.total.toString()[0] != '0'
-                ? position.total.toString().split('.').first
-                : position.total.toString().split('.').first.substring(2);
+            String totalTime = RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
+                .firstMatch("${position.total}")
+                ?.group(1) ??
+                '${position.total}';
+            String currentTime = RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
+                .firstMatch("${position.current}")
+                ?.group(1) ??
+                '${position.current}';
             return SizedBox(
               height: 60,
               child: Stack(
@@ -53,7 +57,7 @@ class SeekBar extends StatelessWidget {
                         controller.update();
                       },
                       onChangeEnd: (value) {
-                        controller.player.value
+                        controller.player
                             .seek(Duration(milliseconds: value.round()));
                         controller.dragValue = null;
                         controller.update();
@@ -72,10 +76,7 @@ class SeekBar extends StatelessWidget {
                     left: 10,
                     top: 0,
                     child: Text(
-                      RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
-                              .firstMatch("$_remaining")
-                              ?.group(1) ??
-                          '$_remaining',
+                      currentTime,
                       style: const TextStyle(color: kWhiteColor),
                     ),
                   ),

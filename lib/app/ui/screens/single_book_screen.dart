@@ -204,9 +204,9 @@ class SingleBookScreen extends GetView<SingleBookController> {
                                     ],
                                   ),
                                   onTap: () {
-                                    Get.toNamed(Routes.audioPlayerScreen,
-                                        arguments:
-                                            "https://irsv.upmusics.com/99/Aron%20Afshar%20%7C%20Khandehato%20Ghorboon%20(128).mp3");
+                                    Get.toNamed(
+                                      Routes.audioPlayerScreen,
+                                    );
                                   },
                                   color: kGreenAccentColor,
                                 ),
