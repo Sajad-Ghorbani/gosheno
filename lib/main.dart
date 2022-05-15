@@ -8,7 +8,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 
 void main()async {
   await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.example.gosheno',
+    androidNotificationChannelId: 'com.gosheno.audiobook',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
     androidShowNotificationBadge: true,
