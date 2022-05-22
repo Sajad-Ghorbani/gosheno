@@ -1,19 +1,24 @@
 import 'package:get/get.dart';
-import 'package:gosheno/app/bindings/audio_player_binding.dart';
-import 'package:gosheno/app/bindings/home_binding.dart';
-import 'package:gosheno/app/bindings/single_book_binding.dart';
-import 'package:gosheno/app/ui/screens/audio_player_screen.dart';
-import 'package:gosheno/app/ui/screens/comments_screen.dart';
-import 'package:gosheno/app/ui/screens/login_screen.dart';
-import 'package:gosheno/app/ui/screens/signup_screen.dart';
-import 'package:gosheno/app/ui/screens/main_screen.dart';
-import 'package:gosheno/app/ui/screens/single_book_screen.dart';
+import 'package:gosheno/app/modules/audio_player/audio_player_binding.dart';
+import 'package:gosheno/app/modules/home/home_binding.dart';
+import 'package:gosheno/app/modules/single_book/single_book_binding.dart';
+import 'package:gosheno/app/modules/user/login/login_screen.dart';
+import 'package:gosheno/app/modules/user/user_binding.dart';
+import 'package:gosheno/app/modules/audio_player/audio_player_screen.dart';
+import 'package:gosheno/app/modules/comment/comments_screen.dart';
+import 'package:gosheno/app/modules/user/signup/signup_screen.dart';
+import 'package:gosheno/app/modules/home/main_screen.dart';
+import 'package:gosheno/app/modules/single_book/single_book_screen.dart';
 
 part './app_routes.dart';
 
 class AppRoutes {
   static List<GetPage> pages = [
-    GetPage(name: Routes.loginScreen, page: () => const LoginScreen()),
+    GetPage(
+      name: Routes.loginScreen,
+      page: () => const LoginScreen(),
+      binding: UserBinding(),
+    ),
     GetPage(name: Routes.signupScreen, page: () => const SignupScreen()),
     GetPage(
       name: Routes.mainScreen,

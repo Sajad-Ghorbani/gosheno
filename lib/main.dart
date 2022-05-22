@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/routes/app_pages.dart';
-import 'package:gosheno/app/ui/theme/app_theme.dart';
+import 'package:gosheno/app/core/theme/app_theme.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+
+import 'app/modules/user/user_binding.dart';
 
 void main()async {
   await JustAudioBackground.init(
@@ -43,6 +45,7 @@ class MyApp extends StatelessWidget {
       ],
       fallbackLocale: const Locale('en', 'US'),
       initialRoute: Routes.loginScreen,
+      initialBinding: UserBinding(),
       getPages: AppRoutes.pages,
       defaultTransition: Transition.rightToLeftWithFade,
       transitionDuration: const Duration(milliseconds: 300),
