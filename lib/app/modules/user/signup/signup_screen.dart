@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
+import 'package:gosheno/app/core/theme/app_text_theme.dart';
 import 'package:gosheno/app/modules/user/user_controller.dart';
 
 import 'package:gosheno/app/global_widgets/custom_text_field.dart';
@@ -15,6 +17,7 @@ class SignupScreen extends GetView<UserController> {
     return Scaffold(
       body: SafeArea(
         child: Form(
+          key: controller.signupFormKey,
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Column(
@@ -25,74 +28,183 @@ class SignupScreen extends GetView<UserController> {
                   height: Get.height * 0.3,
                 ),
                 const SizedBox(height: 10),
-                CustomTextField(
-                  labelText: 'نام و نام خانوادگی',
-                  controller: controller.signupNameController,
-                  validator: (value) {
-                    // controller.validateFormField(value);
-                    return null;
-                  },
+                Obx(
+                  () => CustomTextField(
+                    labelText: 'نام و نام خانوادگی',
+                    controller: controller.signupNameController,
+                    validator: (value) {
+                      return controller.validateSignupForm(value, false);
+                    },
+                    height: controller.nameTextFieldHeight.value,
+                  ),
                 ),
                 const SizedBox(height: 10),
-                CustomTextField(
-                  labelText: 'موبایل خود را وارد کنید',
-                  controller: controller.signupPhoneController,
-                  validator: (value) {
-                    // controller.validateFormField(value);
-                    return null;
-                  },
+                Obx(
+                  () => CustomTextField(
+                    labelText: 'موبایل خود را وارد کنید',
+                    controller: controller.signupPhoneController,
+                    validator: (value) {
+                      return controller.validateSignupForm(value, true);
+                    },
+                    height: controller.phoneSignupTextFieldHeight.value,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 CustomTextField(
                   labelText: 'رمز عبور خود را وارد کنید',
                   controller: controller.signupPasswordController,
+                  onChanged: (value) {
+                    controller.checkPassword(value);
+                  },
                 ),
                 const SizedBox(height: 10),
                 CustomTextField(
                   labelText: 'تکرار رمز عبور',
                   controller: controller.signupRePasswordController,
-                ),
-                // const SizedBox(height: 10),
-                // CustomTextField(
-                //   labelText: 'کد ارسال شده را وارد کنید',
-                //   controller: controller.signupCodeController,
-                // ),
-                const SizedBox(height: 10),
-                CircleButtonWidget(
-                  color: Theme.of(context).colorScheme.secondary,
-                  onTap: () {
-                    controller.registerUser();
+                  onChanged: (value) {
+                    controller.checkRePassword(value);
                   },
-                  height: 45,
-                  width: 120,
-                  child: Text(
-                    'عضویت در گوشنو',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                ),
+                const SizedBox(height: 10),
+                Obx(
+                  () => Row(
+                    children: [
+                      Icon(
+                        FeatherIcons.checkCircle,
+                        size: 14,
+                        color: controller.minCharacter.value
+                            ? kLightGreenColor
+                            : kRedColor,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'بیشتر از 8 کاراکتر',
+                        style: kSubTitle.copyWith(
+                          color: controller.minCharacter.value
+                              ? kLightGreenColor
+                              : kRedColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Obx(
+                  () => Row(
+                    children: [
+                      Icon(
+                        FeatherIcons.checkCircle,
+                        size: 14,
+                        color: controller.mixUpperLowerCase.value
+                            ? kLightGreenColor
+                            : kRedColor,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'حروف بزرگ و کوچک',
+                        style: kSubTitle.copyWith(
+                          color: controller.mixUpperLowerCase.value
+                              ? kLightGreenColor
+                              : kRedColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Obx(
+                  () => Row(
+                    children: [
+                      Icon(
+                        FeatherIcons.checkCircle,
+                        size: 14,
+                        color: controller.minNumber.value
+                            ? kLightGreenColor
+                            : kRedColor,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'دارای حداقل یک عدد',
+                        style: kSubTitle.copyWith(
+                          color: controller.minNumber.value
+                              ? kLightGreenColor
+                              : kRedColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Obx(
+                  () => Row(
+                    children: [
+                      Icon(
+                        FeatherIcons.checkCircle,
+                        size: 14,
+                        color: controller.minSpecial.value
+                            ? kLightGreenColor
+                            : kRedColor,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'دارای حداقل یک علامت خاص',
+                        style: kSubTitle.copyWith(
+                          color: controller.minSpecial.value
+                              ? kLightGreenColor
+                              : kRedColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Obx(
+                  () => Row(
+                    children: [
+                      Icon(
+                        FeatherIcons.checkCircle,
+                        size: 14,
+                        color: controller.matchPassword.value
+                            ? kLightGreenColor
+                            : kRedColor,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'یکسانی رمز عبور',
+                        style: kSubTitle.copyWith(
+                          color: controller.matchPassword.value
+                              ? kLightGreenColor
+                              : kRedColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Obx(
+                  () => CircleButtonWidget(
+                    color: controller.activeButton.value
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.6),
+                    onTap: () {
+                      if (controller.activeButton.value) {
+                        controller.sendSms(false, context);
+                      }
+                    },
+                    height: 45,
+                    width: double.infinity,
+                    child: Text(
+                      'ارسال کد',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        controller.sendSms();
-                      },
-                      child: const Text('ارسال مجدد کد'),
-                    ),
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border.symmetric(vertical: BorderSide()),
-                      ),
-                      width: 1,
-                      height: 20,
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                    ),
-                    const Text('60 ثانیه')
-                  ],
-                ),
                 const Divider(
                   thickness: 1.2,
                   height: 30,
@@ -125,7 +237,7 @@ class SignupScreen extends GetView<UserController> {
                               'ورود به حساب',
                               style: TextStyle(
                                 color:
-                                Theme.of(context).colorScheme.onSecondary,
+                                    Theme.of(context).colorScheme.onSecondary,
                               ),
                             ),
                           ),
@@ -135,7 +247,7 @@ class SignupScreen extends GetView<UserController> {
                     CircleButtonWidget(
                       color: kDarkBlueColor,
                       onTap: () {
-                        controller.googleSignIn(false);
+                        controller.googleSignIn(true);
                       },
                       height: 35,
                       width: Get.width * 0.35,
@@ -147,11 +259,13 @@ class SignupScreen extends GetView<UserController> {
                             width: 20,
                             color: kWhiteColor,
                           ),
-                          Text(
-                            'ورود با گوگل',
-                            style: TextStyle(
-                              color:
-                              Theme.of(context).colorScheme.onSecondary,
+                          FittedBox(
+                            child: Text(
+                              'ورود با گوگل',
+                              style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
+                              ),
                             ),
                           ),
                         ],

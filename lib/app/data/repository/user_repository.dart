@@ -7,9 +7,9 @@ class UserRepository {
 
   Future registerUser({
     required String name,
-    required String phoneNumber,
+    String? phoneNumber,
     required String pass,
-    required String email,
+    String? email,
   }) async {
     return await apiClient.registerUser(name, phoneNumber, pass, email);
   }

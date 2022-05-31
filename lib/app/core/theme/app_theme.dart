@@ -7,6 +7,7 @@ import 'app_text_theme.dart';
 class AppThemeData {
   static ThemeData get lightTheme {
     return ThemeData(
+      useMaterial3: true,
       scaffoldBackgroundColor: kWhiteGreyColor,
       canvasColor: kWhiteGreyColor,
       colorScheme: const ColorScheme(

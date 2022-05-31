@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/modules/user/user_controller.dart';
-import 'package:gosheno/app/routes/app_pages.dart';
 import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/global_widgets/circle_button_widget.dart';
 import 'package:gosheno/app/global_widgets/custom_text_field.dart';
@@ -14,7 +13,7 @@ class LoginScreen extends GetView<UserController> {
     return Scaffold(
       body: SafeArea(
         child: Form(
-          key: controller.formKey,
+          key: controller.loginFormKey,
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Column(
@@ -76,7 +75,7 @@ class LoginScreen extends GetView<UserController> {
                     CircleButtonWidget(
                       color: Theme.of(context).colorScheme.primary,
                       onTap: () {
-                        Get.toNamed(Routes.signupScreen);
+                        controller.navigateToSignupScreen(context);
                       },
                       height: 35,
                       width: Get.width * 0.35,
@@ -103,7 +102,7 @@ class LoginScreen extends GetView<UserController> {
                     CircleButtonWidget(
                       color: kDarkBlueColor,
                       onTap: () {
-                        controller.googleSignIn(true);
+                        controller.googleSignIn(false);
                       },
                       height: 35,
                       width: Get.width * 0.35,
@@ -116,7 +115,7 @@ class LoginScreen extends GetView<UserController> {
                             color: kWhiteColor,
                           ),
                           Text(
-                            'ورود با گوگل',
+                            'ثبت نام با گوگل',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSecondary,
                             ),

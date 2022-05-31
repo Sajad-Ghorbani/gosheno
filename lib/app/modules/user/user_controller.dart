@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as math;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/data/repository/user_repository.dart';
@@ -10,8 +10,7 @@ import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart' as sign_in;
 
-class UserController extends GetxController
-    with GetSingleTickerProviderStateMixin {
+class UserController extends GetxController {
   final UserRepository userRepository;
 
   UserController({required this.userRepository});
@@ -23,26 +22,30 @@ class UserController extends GetxController
   TextEditingController signupCodeController = TextEditingController();
   TextEditingController loginPhoneController = TextEditingController();
   TextEditingController loginPasswordController = TextEditingController();
-  late TabController tabController;
 
-  final formKey = GlobalKey<FormState>();
+  late Timer timer;
+
+  final loginFormKey = GlobalKey<FormState>();
+  final signupFormKey = GlobalKey<FormState>();
   RxDouble phoneTextFieldHeight = 45.0.obs;
   RxDouble passTextFieldHeight = 45.0.obs;
-  RxDouble maxHeight = 275.0.obs;
+  RxDouble nameTextFieldHeight = 45.0.obs;
+  RxDouble phoneSignupTextFieldHeight = 45.0.obs;
+  RxBool minCharacter = false.obs;
+  RxBool mixUpperLowerCase = false.obs;
+  RxBool minNumber = false.obs;
+  RxBool minSpecial = false.obs;
+  RxBool matchPassword = false.obs;
+  RxBool activeButton = false.obs;
+  RxInt resendTime = 60.obs;
+
+  String verifyCode = '-1';
 
   @override
   onInit() {
     super.onInit();
-    tabController = TabController(length: 2, vsync: this);
-    tabController.addListener(() {
-      if (tabController.index == 0) {
-        maxHeight.value = 275;
-      } //
-      else {
-        maxHeight.value = 360;
-      }
-    });
-    // checkUserLoggedIn();
+    timer = Timer(const Duration(), () {});
+    checkUserLoggedIn();
   }
 
   @override
@@ -55,6 +58,7 @@ class UserController extends GetxController
     signupCodeController.dispose();
     loginPhoneController.dispose();
     loginPasswordController.dispose();
+    timer.cancel();
   }
 
   checkUserLoggedIn() async {
@@ -65,36 +69,38 @@ class UserController extends GetxController
     }
   }
 
-  registerUser({
+  registerUser(
+    context, {
     String userName = '-1',
-    String phoneOrEmail = '-1',
+    String email = '-1',
     String pass = '-1',
   }) async {
+    FocusScope.of(context).unfocus();
     try {
       String name =
           userName == '-1' ? signupNameController.text.trim() : userName;
-      String phoneNumberOrEmail = phoneOrEmail == '-1'
-          ? signupPhoneController.text.trim()
-          : phoneOrEmail;
+      String phoneNumberOrEmail =
+          email == '-1' ? signupPhoneController.text.trim() : email;
       String password =
           pass == '-1' ? signupPasswordController.text.trim() : pass;
       Map<String, dynamic> response = {};
-      if (phoneNumberOrEmail.isEmpty || password.isEmpty || name.isEmpty) {
-        Get.snackbar('خطا', 'ورودی ها نباید خالی باشد.');
-        return;
-      } else if (phoneNumberOrEmail.isValidIranianMobileNumber()) {
+      if (userName == '-1') {
+        if (verifyCode != signupCodeController.text.trim()) {
+          Get.snackbar('خطا', 'کد وارد شده صحیح نمی باشد.');
+          return;
+        }
+      }
+      if (phoneNumberOrEmail.isValidIranianMobileNumber()) {
         response = await userRepository.registerUser(
           name: name,
           pass: password,
           phoneNumber: phoneNumberOrEmail,
-          email: '',
         );
       } //
       else if (phoneNumberOrEmail.isEmail) {
         response = await userRepository.registerUser(
           name: name,
           pass: password,
-          phoneNumber: '',
           email: phoneNumberOrEmail,
         );
       } //
@@ -114,9 +120,23 @@ class UserController extends GetxController
         );
       } //
       else {
-        int errorCode = response['error'];
+        int errorCode = int.parse(response['error']);
         if (errorCode == 110) {
-          Get.snackbar('ورود', 'اطلاعات وارد شده صحیح نمی باشد');
+          Get.snackbar('ثبت نام', 'اطلاعات وارد شده صحیح نمی باشد');
+        } //
+        else if (errorCode == 111 || errorCode == 106) {
+          Get.snackbar(
+              'ثبت نام', 'مشکلی سمت سرور رخ داده، لطفا دوباره امتحان کنید.');
+        } //
+        else if (errorCode == 114) {
+          Get.snackbar(
+              'ثبت نام', 'شما قبلا با این شماره تلفن ثبت نام کرده اید.');
+        } //
+        else if (errorCode == 115) {
+          Get.snackbar('ثبت نام', 'شما قبلا با این ایمیل ثبت نام کرده اید.');
+        } //
+        else if (errorCode == 116) {
+          Get.snackbar('ثبت نام', 'شماره تلفن وارد نشده است');
         }
       }
     } //
@@ -133,25 +153,28 @@ class UserController extends GetxController
       String password =
           pass == '-1' ? loginPasswordController.text.trim() : pass;
       Map<String, dynamic> response = {};
-      if (formKey.currentState!.validate()) {
-        if (phoneNumberOrEmail.isEmail) {
-          response = await userRepository.loginUser(
-            email: '',
-            pass: password,
-            phoneNumber: phoneNumberOrEmail,
-          );
-        } //
-        else if (phoneNumberOrEmail.isValidIranianMobileNumber()) {
-          response = await userRepository.loginUser(
-            email: phoneNumberOrEmail,
-            pass: password,
-            phoneNumber: '',
-          );
-        } //
-        else {
-          Get.snackbar('خطا', 'ایمیل یا شماره تماس وارد شده صحیح نمی باشد.');
+      if (phoneOrEmail == '-1') {
+        if (!loginFormKey.currentState!.validate()) {
           return;
         }
+      }
+      if (phoneNumberOrEmail.isEmail) {
+        response = await userRepository.loginUser(
+          email: phoneNumberOrEmail,
+          pass: password,
+          phoneNumber: '',
+        );
+      } //
+      else if (phoneNumberOrEmail.isValidIranianMobileNumber()) {
+        response = await userRepository.loginUser(
+          email: '',
+          pass: password,
+          phoneNumber: phoneNumberOrEmail,
+        );
+      } //
+      else {
+        Get.snackbar('خطا', 'ایمیل یا شماره تماس وارد شده صحیح نمی باشد.');
+        return;
       }
       if (response['status']) {
         SharedPreferences pref = await SharedPreferences.getInstance();
@@ -191,10 +214,13 @@ class UserController extends GetxController
         String pass = generatePassword();
         String? userName = account!.displayName;
         if (userName != null) {
-          registerUser(
-              userName: userName, pass: pass, phoneOrEmail: account.email);
+          registerUser(signupFormKey.currentContext,
+              userName: userName, pass: pass, email: account.email);
         } //
-        else {}
+        else {
+          registerUser(signupFormKey.currentContext,
+              userName: account.email, pass: pass, email: account.email);
+        }
       }
     } catch (e) {
       log(e.toString());
@@ -243,26 +269,122 @@ class UserController extends GetxController
     }
   }
 
-  // String? validatePassword(String? value) {
-  //   RegExp regExp = RegExp(
-  //       r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[@#%^*>?=+]).{8,}$");
-  //   if (value == null || value.isEmpty) {
-  //     height.value = 67;
-  //     return 'الزامی، نمی تواند خالی باشد.';
-  //   } //
-  //   else if (!value.contains(regExp)) {
-  //     height.value = 67;
-  //     return null;
-  //   }
-  //   height.value = 45;
-  //   return null;
-  // }
+  String? validateSignupForm(String? value, bool isPhone) {
+    if (isPhone) {
+      if (value == null || value.isEmpty) {
+        phoneSignupTextFieldHeight.value = 67;
+        return 'الزامی، نمی تواند خالی باشد.';
+      } //
+      else if (!value.isValidIranianMobileNumber()) {
+        phoneSignupTextFieldHeight.value = 67;
+        return 'شماره تلفن وارد شده صحیح نمی باشد.';
+      }
+      phoneSignupTextFieldHeight.value = 45;
+      return null;
+    } //
+    else {
+      if (value == null || value.isEmpty) {
+        nameTextFieldHeight.value = 67;
+        return 'الزامی، نمی تواند خالی باشد.';
+      }
+      nameTextFieldHeight.value = 45;
+      return null;
+    }
+  }
 
-  sendSms() async {
-    String code = generatePassword(isSpecial: false, letter: false, length: 6);
-    print(code);
-    bool status = await userRepository.sendSms(
-        toPhoneNumber: '09100759989', smsCode: code);
-    if (status) {}
+  sendSms(bool isResend, context) async {
+    FocusScope.of(context).unfocus();
+    if (signupFormKey.currentState!.validate() && activeButton.value) {
+      startTimer();
+      verifyCode = generatePassword(isSpecial: false, letter: false, length: 6);
+      bool status = await userRepository.sendSms(
+          toPhoneNumber: signupPhoneController.text.trim(),
+          smsCode: verifyCode);
+      if (status) {
+        Get.snackbar('ارسال کد', 'کد تایید با موفقیت ارسال شد.');
+        if (!isResend) {
+          Get.toNamed(Routes.verifyPhoneScreen);
+        }
+      } //
+      else {
+        Get.snackbar('خطا', 'خطایی رخ داده است، لطفا دوباره تلاش کنید.');
+      }
+    }
+  }
+
+  void navigateToSignupScreen(context) {
+    loginPhoneController.clear();
+    loginPasswordController.clear();
+    FocusScope.of(context).unfocus();
+    Get.toNamed(Routes.signupScreen);
+  }
+
+  bool checkPassword(String pass) {
+    if (pass.length > 8) {
+      minCharacter.value = true;
+    } //
+    else {
+      minCharacter.value = false;
+    }
+    if (pass.contains(RegExp(r'[A-Z]')) && pass.contains(RegExp(r'[a-z]'))) {
+      mixUpperLowerCase.value = true;
+    } //
+    else {
+      mixUpperLowerCase.value = false;
+    }
+    if (pass.contains(RegExp(r'[0-9]'))) {
+      minNumber.value = true;
+    } //
+    else {
+      minNumber.value = false;
+    }
+    if (pass.contains(RegExp(r'[@#%^*>?=+]'))) {
+      minSpecial.value = true;
+    } //
+    else {
+      minSpecial.value = false;
+    }
+    if (minCharacter.value &&
+        minNumber.value &&
+        minSpecial.value &&
+        mixUpperLowerCase.value) {
+      return true;
+    } //
+    else {
+      return false;
+    }
+  }
+
+  void checkRePassword(String rePass) {
+    if (checkPassword(signupPasswordController.text)) {
+      if (rePass.isEmpty) {
+        matchPassword.value = false;
+        activeButton.value = false;
+      } else if (rePass == signupPasswordController.text) {
+        matchPassword.value = true;
+        activeButton.value = true;
+      } //
+      else {
+        matchPassword.value = false;
+        activeButton.value = false;
+      }
+    } //
+    else {
+      matchPassword.value = false;
+      activeButton.value = false;
+    }
+  }
+
+  startTimer() {
+    const oneSec = Duration(seconds: 1);
+    timer = Timer.periodic(oneSec, (timer) {
+      if (resendTime.value == 0) {
+        timer.cancel();
+        resendTime.value = 60;
+      } //
+      else {
+        resendTime.value--;
+      }
+    });
   }
 }

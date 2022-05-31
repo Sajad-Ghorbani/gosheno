@@ -9,6 +9,7 @@ import 'package:gosheno/app/modules/comment/comments_screen.dart';
 import 'package:gosheno/app/modules/user/signup/signup_screen.dart';
 import 'package:gosheno/app/modules/home/main_screen.dart';
 import 'package:gosheno/app/modules/single_book/single_book_screen.dart';
+import 'package:gosheno/app/modules/user/verify_phone/verify_phone_screen.dart';
 
 part './app_routes.dart';
 
@@ -20,6 +21,7 @@ class AppRoutes {
       binding: UserBinding(),
     ),
     GetPage(name: Routes.signupScreen, page: () => const SignupScreen()),
+    GetPage(name: Routes.verifyPhoneScreen, page: () => const VerifyPhoneScreen()),
     GetPage(
       name: Routes.mainScreen,
       page: () => const MainScreen(),

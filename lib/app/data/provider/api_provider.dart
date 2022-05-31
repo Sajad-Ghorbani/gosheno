@@ -13,16 +13,20 @@ class MyApiClient {
   MyApiClient({required this.httpClient});
 
   Future registerUser(
-      String name, String phoneNumber, String pass, String email) async {
+      String name, String? phoneNumber, String pass, String? email) async {
     try {
       // Create a Map for body to post request
       Map<String, String> body = {
         'RequestType': 'reguser',
         'name': name,
-        'mobile': phoneNumber,
         'password': pass,
-        'email': email,
       };
+      if (phoneNumber != null) {
+        body['mobile'] = phoneNumber;
+      }
+      if (email != null) {
+        body['email'] = email;
+      }
       var response = await httpClient.post(
         Uri.parse(baseUrl),
         headers: {
@@ -111,7 +115,7 @@ class MyApiClient {
       );
       if (response.statusCode == 200) {
         var result = json.decode(response.body);
-        if (result['value'].length > 10) {
+        if (result['Value'].length > 10) {
           return true;
         } //
         else {

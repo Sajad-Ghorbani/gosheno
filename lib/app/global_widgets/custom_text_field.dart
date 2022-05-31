@@ -8,12 +8,14 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.showError = false,
     this.height = 45,
+    this.onChanged,
   }) : super(key: key);
   final String labelText;
   final TextEditingController controller;
   final FormFieldValidator<String>? validator;
   final bool showError;
   final double height;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class CustomTextField extends StatelessWidget {
           labelText: labelText,
         ),
         validator: validator,
-        textAlign: TextAlign.center,
+        textAlign: TextAlign.center,onChanged: onChanged,
       ),
     );
   }
