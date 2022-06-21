@@ -9,4 +9,5 @@ abstract class Routes{
   static const String singleBookScreen = '/singleBook';
   static const String commentsScreen = '/comments';
   static const String audioPlayerScreen = '/audioPlayer';
+  static const String categoryScreen = '/category';
 }

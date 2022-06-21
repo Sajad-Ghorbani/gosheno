@@ -1,10 +1,14 @@
 import 'package:animations/animations.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/modules/home/home_controller.dart';
 import 'package:gosheno/app/core/theme/app_color.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/bi.dart';
+import 'package:iconify_flutter/icons/fluent.dart';
+import 'package:iconify_flutter/icons/ri.dart';
+import 'package:iconify_flutter/icons/uil.dart';
 
 class MainScreen extends GetView<HomeController> {
   const MainScreen({Key? key}) : super(key: key);
@@ -39,8 +43,8 @@ class MainScreen extends GetView<HomeController> {
                   controller.currentIndex != 0
                       ? const SizedBox(height: 5)
                       : const SizedBox.shrink(),
-                  const Icon(
-                    FeatherIcons.home,
+                  const Iconify(
+                    Uil.home_alt,
                     color: kWhiteColor,
                   ),
                   controller.currentIndex != 0
@@ -57,8 +61,8 @@ class MainScreen extends GetView<HomeController> {
                   controller.currentIndex != 1
                       ? const SizedBox(height: 5)
                       : const SizedBox.shrink(),
-                  const Icon(
-                    FeatherIcons.fileText,
+                  const Iconify(
+                    Bi.file_earmark_text,
                     color: kWhiteColor,
                   ),
                   controller.currentIndex != 1
@@ -75,8 +79,8 @@ class MainScreen extends GetView<HomeController> {
                   controller.currentIndex != 2
                       ? const SizedBox(height: 5)
                       : const SizedBox.shrink(),
-                  const Icon(
-                    FeatherIcons.book,
+                  const Iconify(
+                    Ri.book_3_line,
                     color: kWhiteColor,
                   ),
                   controller.currentIndex != 2
@@ -93,8 +97,8 @@ class MainScreen extends GetView<HomeController> {
                   controller.currentIndex != 3
                       ? const SizedBox(height: 5)
                       : const SizedBox.shrink(),
-                  const Icon(
-                    FeatherIcons.user,
+                  const Iconify(
+                    Fluent.person_32_regular,
                     color: kWhiteColor,
                   ),
                   controller.currentIndex != 3

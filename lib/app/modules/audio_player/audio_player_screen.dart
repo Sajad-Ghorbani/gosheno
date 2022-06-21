@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/modules/audio_player/audio_player_controller.dart';
 import 'package:gosheno/app/modules/audio_player/local_widget/seek_bar.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/ep.dart';
+import 'package:iconify_flutter/icons/lucide.dart';
 
 import '../../core/theme/app_color.dart';
 import '../../core/theme/app_text_theme.dart';
@@ -96,9 +98,9 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                           onPressed: () {
                             controller.seekToPrevious();
                           },
-                          icon: const Icon(FeatherIcons.skipBack),
+                          icon: const Iconify(Lucide.skip_back,size: 36,color: kWhiteColor,),
                           iconSize: 36,
-                          color: kWhiteColor,
+
                         ),
                         Obx(() {
                           if (controller.buttonNotifier.value ==
@@ -115,14 +117,14 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                           } else if (controller.buttonNotifier.value ==
                               ButtonState.paused) {
                             return IconButton(
-                              icon: const Icon(FeatherIcons.playCircle),
+                              icon: const Iconify(Ep.video_play,size: 64,color: kWhiteColor,),
                               iconSize: 64,
                               color: kWhiteColor,
                               onPressed: controller.player.play,
                             );
                           } else {
                             return IconButton(
-                              icon: const Icon(FeatherIcons.pauseCircle),
+                              icon: const Iconify(Ep.video_pause,size: 64,color: kWhiteColor,),
                               iconSize: 64,
                               color: kWhiteColor,
                               onPressed: controller.player.pause,
@@ -133,7 +135,7 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                           onPressed: () {
                             controller.seekToNext();
                           },
-                          icon: const Icon(FeatherIcons.skipForward),
+                          icon: const Iconify(Lucide.skip_forward,size: 36,color: kWhiteColor,),
                           iconSize: 36,
                           color: kWhiteColor,
                         ),

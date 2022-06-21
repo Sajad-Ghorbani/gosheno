@@ -27,6 +27,7 @@ class AppThemeData {
       appBarTheme: AppBarTheme(
         elevation: 1,
         shape: appBarShape,
+        backgroundColor: kGreenAccentColor,
         titleTextStyle: kBodyMedium.copyWith(
           fontFamily: 'Yekan',
           height: 1,

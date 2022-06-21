@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:gosheno/app/global_widgets/custom_button_widget.dart';
-import 'package:gosheno/app/global_widgets/scores_widget.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/fluent.dart';
 
 import '../core/theme/app_color.dart';
 import '../core/theme/app_text_theme.dart';
@@ -91,7 +91,7 @@ class WideBookCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const Icon(FeatherIcons.bookmark),
+                    const Iconify(Fluent.bookmark_28_regular),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -111,7 +111,6 @@ class WideBookCard extends StatelessWidget {
                       '15000 تومان',
                       style: TextStyle(color: kDarkRedColor, fontSize: 12),
                     ),
-                    ScoresWidget(),
                   ],
                 ),
               ],

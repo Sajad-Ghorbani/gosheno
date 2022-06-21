@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/core/theme/app_text_theme.dart';
 import 'package:gosheno/app/global_widgets/custom_button_widget.dart';
-import 'package:gosheno/app/global_widgets/scores_widget.dart';
-import 'package:persian_number_utility/persian_number_utility.dart';
+import 'package:gosheno/app/global_widgets/custom_text_field.dart';
+import 'package:gosheno/app/modules/comment/comment_controller.dart';
+import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/uim.dart';
 
-class CommentsScreen extends StatelessWidget {
+import '../../data/models/comment_model.dart';
+
+class CommentsScreen extends GetView<CommentController> {
   const CommentsScreen({Key? key}) : super(key: key);
 
   @override
@@ -20,79 +24,62 @@ class CommentsScreen extends StatelessWidget {
             Get.back();
           },
           icon: const Icon(Icons.arrow_back_ios),
+          color: kWhiteColor,
           splashRadius: 25,
         ),
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.all(10),
-              physics: const BouncingScrollPhysics(),
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: EdgeInsets.zero,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
-                  ),
-                  child: Padding(
+            child: controller.comments.isEmpty
+                ? const Center(
+                    child: Text('دیدگاهی ثبت نشده است', style: kBodyMedium),
+                  )
+                : ListView.separated(
                     padding: const EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            const Text(
-                              'علی زارعی',
-                              style: kBodyMedium,
-                            ),
-                            const Spacer(),
-                            const ScoresWidget(),
-                            const SizedBox(width: 5),
-                            Text(DateTime.now()
-                                .add(Duration(days: index))
-                                .toPersianDateStr()),
-                          ],
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: controller.comments.length,
+                    itemBuilder: (context, index) {
+                      BookComment comment = controller.comments[index];
+                      return Card(
+                        margin: EdgeInsets.zero,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10),
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان '
-                          'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان '
-                          'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان '
-                          'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ،',
-                          maxLines: 1 * (index + 1),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(comment.text),
+                              ),
+                              const SizedBox(width: 10),
+                              Directionality(
+                                textDirection: TextDirection.ltr,
+                                child: RatingBarIndicator(
+                                  rating: double.parse(comment.rate),
+                                  itemBuilder: (context, index) =>
+                                      const Iconify(
+                                    Uim.star,
+                                    color: kAmberColor,
+                                  ),
+                                  unratedColor: kAmberColor.withOpacity(0.3),
+                                  itemCount: 5,
+                                  itemSize: 20,
+                                  direction: Axis.horizontal,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Text('${((35 * (index + 5)) + 2) ~/ (index + 1)}'),
-                            const SizedBox(width: 5),
-                            const Icon(
-                              FeatherIcons.thumbsUp,
-                              size: 18,
-                              color: kGreyColor,
-                            ),
-                            const SizedBox(width: 20),
-                            Text('${((12 * index + 5) + 12) ~/ (index + 1)}'),
-                            const SizedBox(width: 5),
-                            const Icon(
-                              FeatherIcons.thumbsDown,
-                              size: 18,
-                              color: kGreyColor,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return const SizedBox(height: 10);
+                    },
                   ),
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return const SizedBox(height: 10);
-              },
-            ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -106,175 +93,78 @@ class CommentsScreen extends StatelessWidget {
                 ),
               ],
             ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Text('5 ستاره'),
-                    SizedBox(
-                      height: 15,
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      child: Stack(
-                        children: <Widget>[
-                          Container(
-                            decoration: BoxDecoration(
-                              // border: Border.all(color: kGreyColor.withOpacity(0.2)),
-                              color: kGreyColor.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          FractionallySizedBox(
-                            widthFactor: 0.8,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: kAmberColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+            child: CustomButtonWidget(
+              onTap: () {
+                Get.bottomSheet(
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
                     ),
-                    const Text('36'),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Text('4 ستاره'),
-                    SizedBox(
-                      height: 15,
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      child: Stack(
-                        children: <Widget>[
-                          Container(
-                            decoration: BoxDecoration(
-                              color: kGreyColor.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                    color: kWhiteColor,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'نظر خود را بنویسید',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
-                          FractionallySizedBox(
-                            widthFactor: 0.6,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: kAmberColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
+                        ),
+                        const SizedBox(height: 10),
+                        CustomTextField(
+                          controller: controller.commentController,
+                          labelText: 'نظر خود را بنویسید',
+                          height: null,
+                          maxLines: 3,
+                          minLines: 3,
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'امتیاز خود را بدهید',
+                        ),
+                        const SizedBox(height: 10),
+                        RatingBar.builder(
+                          onRatingUpdate: (double value) {
+                            controller.commentRating = value;
+                          },
+                          initialRating: controller.commentRating,
+                          itemBuilder: (BuildContext context, int index) =>
+                              const Iconify(
+                            Uim.star,
+                            color: kAmberColor,
                           ),
-                        ],
-                      ),
+                          unratedColor: kAmberColor.withOpacity(0.3),
+                          itemCount: 5,
+                          itemSize: 20,
+                          direction: Axis.horizontal,
+                        ),
+                        const SizedBox(height: 10),
+                        CustomButtonWidget(
+                          onTap: () {
+                            controller.addComment();
+                          },
+                          color: kGreenAccentColor,
+                          width: double.infinity,
+                          child: Text(
+                            'ارسال',
+                            style: kBodyMedium.copyWith(color: kWhiteColor),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
-                    const Text('30'),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Text('3 ستاره'),
-                    SizedBox(
-                      height: 15,
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      child: Stack(
-                        children: <Widget>[
-                          Container(
-                            decoration: BoxDecoration(
-                              // border: Border.all(color: kGreyColor.withOpacity(0.2)),
-                              color: kGreyColor.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          FractionallySizedBox(
-                            widthFactor: 0.5,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: kAmberColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Text('24'),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Text('2 ستاره'),
-                    SizedBox(
-                      height: 15,
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      child: Stack(
-                        children: <Widget>[
-                          Container(
-                            decoration: BoxDecoration(
-                              color: kGreyColor.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          FractionallySizedBox(
-                            widthFactor: 0.2,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: kAmberColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Text('18'),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Text('1 ستاره'),
-                    SizedBox(
-                      height: 15,
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      child: Stack(
-                        children: <Widget>[
-                          Container(
-                            decoration: BoxDecoration(
-                              color: kGreyColor.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          FractionallySizedBox(
-                            widthFactor: 0.1,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: kAmberColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Text('6'),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                CustomButtonWidget(
-                    onTap: () {},
-                    color: kGreenAccentColor,
-                    width: double.infinity,
-                    child: Text(
-                      'ارسال نظر',
-                      style: kBodyMedium.copyWith(color: kWhiteColor),
-                      textAlign: TextAlign.center,
-                    )),
-              ],
+                  ),
+                );
+              },
+              color: kGreenAccentColor,
+              width: double.infinity,
+              child: Text(
+                'ارسال نظر',
+                style: kBodyMedium.copyWith(color: kWhiteColor),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ],

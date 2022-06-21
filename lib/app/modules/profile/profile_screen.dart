@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:gosheno/app/modules/profile/profile_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    ProfileController controller = Get.put(ProfileController());
     return Scaffold(
       appBar: AppBar(
         title: const Text('پروفایل'),
@@ -52,7 +55,9 @@ class ProfileScreen extends StatelessWidget {
             const Divider(height: 1),
             ListTile(
               title: const Text('خروج'),
-              onTap: () {},
+              onTap: () {
+                controller.logout();
+              },
             ),
             const Divider(height: 1),
           ],
