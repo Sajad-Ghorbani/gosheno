@@ -20,48 +20,60 @@ class SeekBar extends StatelessWidget {
           builder: (controller) {
             final position = controller.progressNotifier.value;
             String totalTime = RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
-                .firstMatch("${position.total}")
-                ?.group(1) ??
+                    .firstMatch("${position.total}")
+                    ?.group(1) ??
                 '${position.total}';
             String currentTime = RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
-                .firstMatch("${position.current}")
-                ?.group(1) ??
+                    .firstMatch("${position.current}")
+                    ?.group(1) ??
                 '${position.current}';
             return SizedBox(
-              height: 60,
+              height: 40,
               child: Stack(
                 children: [
-                  SliderTheme(
-                    data: SliderThemeData(
-                      activeTrackColor: Colors.blue.shade100,
-                      inactiveTrackColor: Colors.grey.shade300,
-                      trackHeight: 5,
-                      thumbColor: Colors.white,
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 8,
-                        pressedElevation: 8,
-                      ),
-                      overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 0,
-                      ),
+                  Positioned(
+                    bottom: 0,
+                    child: Container(
+                      height: 9,
+                      width: Get.width,
+                      color: kBlueGreyColor,
                     ),
-                    child: Slider(
-                      min: 0.0,
-                      max: position.total.inMilliseconds.toDouble(),
-                      value: min(
-                          controller.dragValue ??
-                              position.current.inMilliseconds.toDouble(),
-                          position.total.inMilliseconds.toDouble()),
-                      onChanged: (value) {
-                        controller.dragValue = value;
-                        controller.update();
-                      },
-                      onChangeEnd: (value) {
-                        controller.player
-                            .seek(Duration(milliseconds: value.round()));
-                        controller.dragValue = null;
-                        controller.update();
-                      },
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    width: Get.width,
+                    child: SliderTheme(
+                      data: SliderThemeData(
+                        activeTrackColor: Colors.blue.shade100,
+                        inactiveTrackColor: Colors.grey.shade300,
+                        trackHeight: 5,
+                        thumbColor: Colors.white,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 8,
+                          pressedElevation: 8,
+                        ),
+                        overlayShape: const RoundSliderOverlayShape(
+                          overlayRadius: 0,
+                        ),
+                      ),
+                      child: Slider(
+                        min: 0.0,
+                        max: position.total.inMilliseconds.toDouble(),
+                        value: min(
+                            controller.dragValue ??
+                                position.current.inMilliseconds.toDouble(),
+                            position.total.inMilliseconds.toDouble()),
+                        onChanged: (value) {
+                          controller.dragValue = value;
+                          controller.update();
+                        },
+                        onChangeEnd: (value) {
+                          controller.player
+                              .seek(Duration(milliseconds: value.round()));
+                          controller.dragValue = null;
+                          controller.update();
+                        },
+                      ),
                     ),
                   ),
                   Positioned(

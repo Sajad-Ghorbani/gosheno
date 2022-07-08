@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
+import 'package:gosheno/app/core/utils/app_constants.dart';
+import 'package:gosheno/app/data/models/book_model.dart';
 import 'package:gosheno/app/modules/home/home_controller.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -9,16 +11,10 @@ import 'package:just_audio_background/just_audio_background.dart';
 class AudioPlayerController extends GetxController {
   final player = Get.find<HomeController>().player;
 
-  Rx<MediaItem> currentSong = MediaItem(
-    id: '2',
-    title: '102',
-    artist: 'دارن هاردی',
-    displayDescription:
-        'اثر مرکب همیشه کار می کند و همیشه شما را جایی خواهد برد.',
-    artUri: Uri.parse(
-        'https://upmusics.com/wp-content/uploads/2022/04/IMG_20220406_210952_989.jpg'),
-  ).obs;
-  RxList<MediaItem> playList = <MediaItem>[].obs;
+  final Book _book = Get.arguments;
+
+  late MediaItem selectedSong;
+  MediaItem? currentAudio;
 
   Rx<ButtonState> buttonNotifier = ButtonState.paused.obs;
   Rx<ProgressBarState> progressNotifier = ProgressBarState(
@@ -30,10 +26,21 @@ class AudioPlayerController extends GetxController {
   List<double> speedList = [1, 1.25, 1.5, 2];
 
   double? dragValue;
+  bool showBookContent = true;
 
   @override
   void onInit() {
     super.onInit();
+    selectedSong = MediaItem(
+      id: _book.id,
+      title: _book.name,
+      artist: _book.author,
+      displayDescription: _book.short,
+      artUri: Uri.parse('${AppConstants.baseUrl}${_book.pic}'),
+      extras: {
+        'bookContent': _book.content,
+      },
+    );
     _init();
     _listenForChangesInSequenceState();
     _listenToPlaybackState();
@@ -51,49 +58,16 @@ class AudioPlayerController extends GetxController {
       log('A stream error occurred: $e');
     });
     try {
-      final playList = ConcatenatingAudioSource(children: [
-        AudioSource.uri(
-          Uri.parse(
-              'https://dl.my-ahangha.ir/up/2019/Erfan%20-%20Khate%20Man%20128.mp3'),
-          tag: MediaItem(
-            id: '1',
-            title: "اثر مرکب",
-            artist: 'دارن هاردی',
-            displayDescription:
-                'اثر مرکب همیشه کار می کند و همیشه شما را جایی خواهد برد.',
-            artUri: Uri.parse(
-                'https://liwa.ir/wp-content/uploads/hqdefault-3-e1514574191762.jpg'),
+      if (currentAudio != null && currentAudio!.id == selectedSong.id) {
+        //pass
+      } //
+      else {
+        await player.setAudioSource(
+          LockCachingAudioSource(
+            Uri.parse('${AppConstants.baseUrl}${_book.soundDemo}'),
+            tag: selectedSong,
           ),
-        ),
-        AudioSource.uri(
-          Uri.parse(
-              'https://irsv.upmusics.com/99/Aron%20Afshar%20%7C%20Khandehato%20Ghorboon%20(128).mp3'),
-          tag: MediaItem(
-            id: '2',
-            title: "اثر",
-            artist: 'دارن هاردی',
-            displayDescription:
-                'اثر مرکب همیشه کار می کند و همیشه شما را جایی خواهد برد.',
-            artUri: Uri.parse(
-                'https://upmusics.com/wp-content/uploads/2022/04/IMG_20220406_210952_989.jpg'),
-          ),
-        ),
-        AudioSource.uri(
-          Uri.parse(
-              'http://www.s4.topseda.ir/nevisande/reza/1396/music/05/10/Moein%20-%20Jane%20Man%20%28128%29.mp3'),
-          tag: MediaItem(
-            id: '3',
-            title: "مرکب",
-            artist: 'دارن هاردی',
-            displayDescription:
-                'اثر مرکب همیشه کار می کند و همیشه شما را جایی خواهد برد.',
-            artUri: Uri.parse(
-                'https://musicirani.org/wp-content/uploads/2018/07/745-Moein-JaneMan.jpg'),
-          ),
-        ),
-      ]);
-      if (currentSong.value.title == '102') {
-        await player.setAudioSource(playList);
+        );
       }
     } catch (e) {
       log("Error loading audio source: $e");
@@ -105,15 +79,12 @@ class AudioPlayerController extends GetxController {
       if (sequenceState == null) return;
 
       final currentItem = sequenceState.currentSource;
-      currentSong.value = currentItem?.tag as MediaItem;
-
-      final playlist = sequenceState.effectiveSequence;
-      playList.value = playlist.map((item) => item.tag as MediaItem).toList();
+      currentAudio = currentItem?.tag as MediaItem;
     });
   }
 
   void _listenToPlaybackState() {
-    player.playerStateStream.listen((playerState) async {
+    player.playerStateStream.listen((playerState) {
       final isPlaying = playerState.playing;
       final processingState = playerState.processingState;
       if (processingState == ProcessingState.loading ||
@@ -125,8 +96,8 @@ class AudioPlayerController extends GetxController {
         buttonNotifier.value = ButtonState.playing;
       } else {
         buttonNotifier.value = ButtonState.paused;
-        await player.stop();
         player.seek(Duration.zero);
+        player.stop();
       }
     });
   }
@@ -163,27 +134,25 @@ class AudioPlayerController extends GetxController {
     }
   }
 
-  void seekToPrevious() {
-    if (player.hasPrevious) {
-      player.seekToPrevious();
-    } //
-    else {
-      player.seek(Duration.zero);
-    }
-  }
-
-  void seekToNext() {
-    if (player.hasNext) {
-      player.seekToNext();
-    }
-  }
-
   void stop() async {
     await player.stop();
     progressNotifier.value = ProgressBarState(
       current: Duration.zero,
       total: Duration.zero,
     );
+  }
+
+  void setSpeed(double index) {
+    speedIndex = speedList.indexOf(index);
+    player.setSpeed(index);
+    update();
+  }
+
+  void toggleShowContent() {
+    if (_book.content != null) {
+      showBookContent = !showBookContent;
+      update();
+    }
   }
 }
 

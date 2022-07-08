@@ -9,6 +9,8 @@ class BookComment{
   String bookId;
   String rate;
   String stat;
+  String userId;
+  String time;
 
   BookComment({
     required this.id,
@@ -16,11 +18,13 @@ class BookComment{
     required this.bookId,
     required this.rate,
     required this.stat,
+    required this.userId,
+    required this.time,
   });
 
-  factory BookComment.fromJson(Map<String, dynamic> json)=> _$CommentFromJson(json);
+  factory BookComment.fromJson(Map<String, dynamic> json)=> _$BookCommentFromJson(json);
 
-  Map<String, dynamic> toJson()=> _$CommentToJson(this);
+  Map<String, dynamic> toJson()=> _$BookCommentToJson(this);
 
   @override
   String toString() {

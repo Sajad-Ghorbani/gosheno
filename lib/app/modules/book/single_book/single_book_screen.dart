@@ -3,14 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/core/utils/app_constants.dart';
-import 'package:gosheno/app/data/models/book_model.dart';
 import 'package:gosheno/app/modules/book/book_controller.dart';
 import 'package:gosheno/app/routes/app_pages.dart';
 import 'package:gosheno/app/global_widgets/custom_button_widget.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ep.dart';
 import 'package:iconify_flutter/icons/fluent.dart';
-import 'package:iconify_flutter/icons/ph.dart';
 import 'package:iconify_flutter/icons/uim.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 
@@ -22,7 +20,6 @@ class SingleBookScreen extends GetView<BookController> {
 
   @override
   Widget build(BuildContext context) {
-    Book book = Get.arguments;
     String? heroTag = Get.parameters['tag'];
     return Scaffold(
       body: SafeArea(
@@ -31,7 +28,8 @@ class SingleBookScreen extends GetView<BookController> {
           physics: const BouncingScrollPhysics(),
           slivers: [
             GetBuilder<BookController>(
-              initState: (_) => controller.getComments(int.parse(book.id)),
+              initState: (_) =>
+                  controller.getComments(int.parse(controller.book!.id)),
               builder: (_) {
                 return SliverAppBar(
                   pinned: true,
@@ -39,7 +37,7 @@ class SingleBookScreen extends GetView<BookController> {
                     opacity: controller.opacityAnimation,
                     duration: const Duration(milliseconds: 200),
                     child: Text(
-                      book.name,
+                      controller.book!.name,
                       style: const TextStyle(
                         color: kBlackColor,
                       ),
@@ -71,7 +69,7 @@ class SingleBookScreen extends GetView<BookController> {
                             Column(
                               children: [
                                 Container(
-                                  height: 160,
+                                  height: 170,
                                   width: 120,
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 10, horizontal: 10),
@@ -82,14 +80,17 @@ class SingleBookScreen extends GetView<BookController> {
                                         child: Hero(
                                           tag: heroTag!,
                                           child: CachedNetworkImage(
-                                            imageUrl: '$baseUrl${book.pic}',
-                                            width: 80,
+                                            imageUrl:
+                                                '${AppConstants.baseUrl}${controller.book!.pic}',
+                                            width: 86,
+                                            height: 150,
                                             fit: BoxFit.cover,
                                           ),
                                         ),
                                       ),
                                       Visibility(
-                                        visible: book.offCount() > 0,
+                                        visible:
+                                            controller.book!.offCount() > 0,
                                         child: Positioned(
                                           right: 0,
                                           child: Container(
@@ -99,7 +100,7 @@ class SingleBookScreen extends GetView<BookController> {
                                               color: kGreenAccentColor,
                                             ),
                                             child: Text(
-                                              '${book.offCount()}%',
+                                              '${controller.book!.offCount()}%',
                                               style: kBodyText.copyWith(
                                                 color: kWhiteColor,
                                                 fontSize: 10,
@@ -114,7 +115,7 @@ class SingleBookScreen extends GetView<BookController> {
                                 Directionality(
                                   textDirection: TextDirection.ltr,
                                   child: RatingBarIndicator(
-                                    rating: double.parse(book.rate!),
+                                    rating: double.parse(controller.book!.rate),
                                     itemBuilder: (context, index) =>
                                         const Iconify(
                                       Uim.star,
@@ -140,58 +141,78 @@ class SingleBookScreen extends GetView<BookController> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                              width: 150,
-                                              child: Text(
-                                                book.name,
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                controller.book!.name,
                                                 style: kBodyMedium.copyWith(
                                                   fontSize: 16,
                                                 ),
                                               ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              book.author,
-                                              style: const TextStyle(
-                                                color: kGreyColor,
-                                                fontSize: 12,
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                controller.book!.enName,
+                                                textDirection:
+                                                    TextDirection.ltr,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            SizedBox(
-                                              width: 200,
-                                              child: Text(
-                                                book.short,
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                controller.book!.author,
+                                                style: const TextStyle(
+                                                  color: kGreyColor,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                controller.book!.short,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: kSubTitle,
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                        const Iconify(
-                                            Fluent.bookmark_28_regular),
+                                        IconButton(
+                                          icon: Iconify(
+                                            controller.isBookmarked
+                                                ? Fluent.bookmark_28_filled
+                                                : Fluent.bookmark_28_regular,
+                                          ),
+                                          onPressed: () {
+                                            controller.toggleBookmark();
+                                          },
+                                        ),
                                       ],
                                     ),
                                     const SizedBox(height: 10),
-                                    Text(
-                                      '${book.offCount() > 0 ? book.sPrice.seRagham() : book.price.seRagham()} تومان',
-                                      style:
-                                          const TextStyle(color: kDarkRedColor),
-                                    ),
-                                    const SizedBox(height: 5),
                                     Row(
-                                      children: const [
-                                        Iconify(
-                                          Ph.clock_bold,
-                                          size: 14,
-                                          color: kGreyColor,
+                                      children: [
+                                        Visibility(
+                                          visible:
+                                              controller.book!.offCount() > 0,
+                                          child: Text(
+                                            '${controller.book!.sPrice.seRagham()} تومان / ',
+                                            style: kBodyText.copyWith(
+                                              color: kDarkRedColor,
+                                            ),
+                                          ),
                                         ),
-                                        SizedBox(width: 5),
-                                        Text('45 دقیقه', style: kSubTitle),
+                                        Text(
+                                          '${controller.book!.price.seRagham()} تومان',
+                                          style: TextStyle(
+                                            color: kDarkRedColor,
+                                            decoration:
+                                                controller.book!.offCount() > 0
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                     const SizedBox(height: 10),
@@ -201,7 +222,7 @@ class SingleBookScreen extends GetView<BookController> {
                                           Routes.commentsScreen,
                                           arguments: controller.comments,
                                           parameters: {
-                                            'bookId': book.id,
+                                            'bookId': controller.book!.id,
                                           },
                                         );
                                       },
@@ -216,6 +237,7 @@ class SingleBookScreen extends GetView<BookController> {
                                       onTap: () {
                                         Get.toNamed(
                                           Routes.audioPlayerScreen,
+                                          arguments: controller.book,
                                         );
                                       },
                                       color: kGreenAccentColor,
@@ -313,7 +335,7 @@ class SingleBookScreen extends GetView<BookController> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        book.about,
+                        controller.book!.about,
                         style: kBodyText.copyWith(fontSize: 16),
                       ),
                       const SizedBox(height: 10),
@@ -323,7 +345,7 @@ class SingleBookScreen extends GetView<BookController> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        book.authorContent,
+                        controller.book!.authorContent,
                         style: kBodyText.copyWith(fontSize: 16),
                       ),
                     ],

@@ -1,11 +1,14 @@
+import 'package:animations/animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/modules/audio_player/audio_player_controller.dart';
 import 'package:gosheno/app/modules/audio_player/local_widget/seek_bar.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ep.dart';
-import 'package:iconify_flutter/icons/lucide.dart';
+import 'package:iconify_flutter/icons/fluent.dart';
+import 'package:iconify_flutter/icons/ri.dart';
 
 import '../../core/theme/app_color.dart';
 import '../../core/theme/app_text_theme.dart';
@@ -15,210 +18,263 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color: kGreenAccentColor,
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  color: Colors.black,
-                  child: Opacity(
-                    opacity: 0.45,
-                    child: Obx(
-                      () => CachedNetworkImage(
-                        imageUrl:
-                            controller.currentSong.value.artUri.toString(),
-                        height: Get.height * 0.7 - 30,
-                        width: Get.width,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  left: 0,
-                  child: AppBar(
-                    elevation: 0,
-                    backgroundColor: Colors.transparent,
-                    leading: IconButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      icon: const Icon(Icons.arrow_back_ios),
-                      splashRadius: 25,
-                    ),
-                  ),
-                ),
-                Obx(() {
-                  final item = controller.currentSong.value;
-                  return Container(
-                    height: Get.height * 0.7,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: kBodyMedium.copyWith(color: kWhiteColor),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(item.artist!, style: kWhiteText),
-                        const SizedBox(height: 20),
-                        Text(item.displayDescription!, style: kWhiteText),
-                      ],
-                    ),
-                  );
-                }),
-                const SeekBar(),
-              ],
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(
+          color: Colors.black,
+          child: Opacity(
+            opacity: 0.45,
+            child: CachedNetworkImage(
+              imageUrl: controller.selectedSong.artUri.toString(),
+              height: Get.height,
+              width: Get.width,
+              fit: BoxFit.cover,
             ),
-            Expanded(
-              child: Directionality(
-                textDirection: TextDirection.ltr,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            controller.seekTo10Second(false);
-                          },
-                          icon: const Icon(Icons.replay_10_rounded),
-                          // iconSize: 28,
-                          color: kWhiteColor,
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            controller.seekToPrevious();
-                          },
-                          icon: const Iconify(Lucide.skip_back,size: 36,color: kWhiteColor,),
-                          iconSize: 36,
-
-                        ),
-                        Obx(() {
-                          if (controller.buttonNotifier.value ==
-                              ButtonState.loading) {
-                            return Container(
-                              margin: const EdgeInsets.all(8),
-                              padding: const EdgeInsets.all(10),
-                              width: 64,
-                              height: 64,
-                              child: const CircularProgressIndicator(
-                                color: kWhiteColor,
-                              ),
-                            );
-                          } else if (controller.buttonNotifier.value ==
-                              ButtonState.paused) {
-                            return IconButton(
-                              icon: const Iconify(Ep.video_play,size: 64,color: kWhiteColor,),
-                              iconSize: 64,
-                              color: kWhiteColor,
-                              onPressed: controller.player.play,
-                            );
-                          } else {
-                            return IconButton(
-                              icon: const Iconify(Ep.video_pause,size: 64,color: kWhiteColor,),
-                              iconSize: 64,
-                              color: kWhiteColor,
-                              onPressed: controller.player.pause,
-                            );
-                          }
-                        }),
-                        IconButton(
-                          onPressed: () {
-                            controller.seekToNext();
-                          },
-                          icon: const Iconify(Lucide.skip_forward,size: 36,color: kWhiteColor,),
-                          iconSize: 36,
-                          color: kWhiteColor,
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            controller.seekTo10Second(true);
-                          },
-                          icon: const Icon(Icons.forward_10_rounded),
-                          // iconSize: 28,
-                          color: kWhiteColor,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    GetBuilder<AudioPlayerController>(
-                      builder: (_) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: controller.speedList.map((index) {
-                            return GestureDetector(
-                              onTap: () {
-                                controller.speedIndex =
-                                    controller.speedList.indexOf(index);
-                                controller.player.setSpeed(index);
-                                _.update();
-                              },
-                              child: Container(
-                                margin:
+          ),
+        ),
+        GetBuilder<AudioPlayerController>(
+          builder: (_) {
+            return Scaffold(
+              backgroundColor:
+                  controller.showBookContent ? Colors.transparent : null,
+              appBar: AppBar(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
+                leading: IconButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  icon: const Icon(Icons.arrow_back_ios),
+                  splashRadius: 25,
+                  color: controller.showBookContent
+                      ? kWhiteGreyColor
+                      : kBlackColor,
+                ),
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      controller.toggleShowContent();
+                    },
+                    icon: controller.showBookContent
+                        ? const Iconify(
+                            Ri.book_3_line,
+                            color: kWhiteGreyColor,
+                          )
+                        : const Iconify(
+                            Fluent.headphones_32_regular,
+                            color: kBlackColor,
+                          ),
+                    splashRadius: 25,
+                  ),
+                  const SizedBox(width: 5),
+                ],
+              ),
+              body: PageTransitionSwitcher(
+                duration: const Duration(milliseconds: 500),
+                transitionBuilder:
+                    (child, primaryAnimation, secondaryAnimation) {
+                  return FadeThroughTransition(
+                    animation: primaryAnimation,
+                    secondaryAnimation: secondaryAnimation,
+                    fillColor: Colors.transparent,
+                    child: child,
+                  );
+                },
+                child: controller.showBookContent
+                    ? Column(
+                        children: [
+                          Stack(
+                            children: [
+                              Container(
+                                height: Get.height * 0.7 - 80,
+                                width: Get.width,
+                                padding:
                                     const EdgeInsets.symmetric(horizontal: 10),
-                                child: Text(
-                                  '$index x',
-                                  style: controller.speedList.indexOf(index) ==
-                                          controller.speedIndex
-                                      ? kBodyText.copyWith(
-                                          color: kAmberColor,
-                                          fontWeight: FontWeight.w900,
-                                        )
-                                      : kBodyText.copyWith(
-                                          color: kWhiteColor,
-                                          fontWeight: FontWeight.w900,
-                                        ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      controller.selectedSong.title,
+                                      style: kBodyMedium.copyWith(
+                                          color: kWhiteColor),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(controller.selectedSong.artist!,
+                                        style: kWhiteText),
+                                    const SizedBox(height: 20),
+                                    Text(
+                                        controller
+                                            .selectedSong.displayDescription!,
+                                        style: kWhiteText),
+                                  ],
                                 ),
                               ),
-                            );
-                          }).toList(),
-                        );
-                        //   SizedBox(-
-                        //   width: Get.width,
-                        //   height: 60,
-                        //   child: ListView.separated(
-                        //     itemCount: controller.speedList.length,
-                        //     scrollDirection: Axis.horizontal,
-                        //     itemBuilder: (context, index) {
-                        //       return GestureDetector(
-                        //         onTap: () {
-                        //           controller.speedIndex = index;
-                        //           controller.player.value
-                        //               .setSpeed(controller.speedList[index]);
-                        //           _.update();
-                        //         },
-                        //         child: Text(
-                        //           '${controller.speedList[index]} x',
-                        //           style: index == controller.speedIndex
-                        //               ? kWhiteText.copyWith(
-                        //                   color: kLightGreenAccentColor)
-                        //               : kWhiteText,
-                        //         ),
-                        //       );
-                        //     },
-                        //     separatorBuilder: (context, index) {
-                        //       return const SizedBox(width: 20);
-                        //     },
-                        //   ),
-                        // );
-                      },
-                    ),
-                  ],
-                ),
+                              const SeekBar(),
+                            ],
+                          ),
+                          Expanded(
+                            child: Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Container(
+                                color: kBlueGreyColor,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            controller.seekTo10Second(false);
+                                          },
+                                          icon: const Icon(
+                                              Icons.replay_10_rounded),
+                                          // iconSize: 28,
+                                          color: kWhiteColor,
+                                        ),
+                                        // IconButton(
+                                        //   onPressed: () {
+                                        //     controller.seekToPrevious();
+                                        //   },
+                                        //   icon: const Iconify(Lucide.skip_back,size: 36,color: kWhiteColor,),
+                                        //   iconSize: 36,
+                                        //
+                                        // ),
+                                        Obx(
+                                          () {
+                                            if (controller
+                                                    .buttonNotifier.value ==
+                                                ButtonState.loading) {
+                                              return Container(
+                                                margin: const EdgeInsets.all(8),
+                                                padding:
+                                                    const EdgeInsets.all(10),
+                                                width: 64,
+                                                height: 64,
+                                                child:
+                                                    const CircularProgressIndicator(
+                                                  color: kWhiteColor,
+                                                ),
+                                              );
+                                            } else if (controller
+                                                    .buttonNotifier.value ==
+                                                ButtonState.paused) {
+                                              return IconButton(
+                                                icon: const Iconify(
+                                                  Ep.video_play,
+                                                  size: 64,
+                                                  color: kWhiteColor,
+                                                ),
+                                                iconSize: 64,
+                                                color: kWhiteColor,
+                                                onPressed:
+                                                    controller.player.play,
+                                              );
+                                            } else {
+                                              return IconButton(
+                                                icon: const Iconify(
+                                                  Ep.video_pause,
+                                                  size: 64,
+                                                  color: kWhiteColor,
+                                                ),
+                                                iconSize: 64,
+                                                color: kWhiteColor,
+                                                onPressed:
+                                                    controller.player.pause,
+                                              );
+                                            }
+                                          },
+                                        ),
+                                        // IconButton(
+                                        //   onPressed: () {
+                                        //     controller.seekToNext();
+                                        //   },
+                                        //   icon: const Iconify(Lucide.skip_forward,size: 36,color: kWhiteColor,),
+                                        //   iconSize: 36,
+                                        //   color: kWhiteColor,
+                                        // ),
+                                        IconButton(
+                                          onPressed: () {
+                                            controller.seekTo10Second(true);
+                                          },
+                                          icon: const Icon(
+                                              Icons.forward_10_rounded),
+                                          // iconSize: 28,
+                                          color: kWhiteColor,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    GetBuilder<AudioPlayerController>(
+                                      builder: (_) {
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children:
+                                              controller.speedList.map((index) {
+                                            return GestureDetector(
+                                              onTap: () {
+                                                controller.setSpeed(index);
+                                              },
+                                              child: Container(
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10),
+                                                child: Text(
+                                                  '$index x',
+                                                  style: controller.speedList
+                                                              .indexOf(index) ==
+                                                          controller.speedIndex
+                                                      ? kBodyText.copyWith(
+                                                          color: kAmberColor,
+                                                          fontWeight:
+                                                              FontWeight.w900,
+                                                        )
+                                                      : kBodyText.copyWith(
+                                                          color: kWhiteColor,
+                                                          fontWeight:
+                                                              FontWeight.w900,
+                                                        ),
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Image.asset(
+                                      'assets/images/gosheno-logo-typo.png',
+                                      height: Get.height * 0.05,
+                                    ),
+                                    const SizedBox(height: 10),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 20,
+                        ),
+                        child: HtmlWidget(
+                          controller.selectedSong.extras!['bookContent'],
+                        ),
+                      ),
               ),
-            ),
-          ],
+            );
+          },
         ),
-      ),
+      ],
     );
   }
 }

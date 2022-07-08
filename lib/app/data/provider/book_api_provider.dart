@@ -6,6 +6,7 @@ import 'package:gosheno/app/core/utils/app_constants.dart';
 import 'package:gosheno/app/data/models/book_model.dart';
 import 'package:gosheno/app/data/models/category_model.dart';
 import 'package:gosheno/app/data/models/comment_model.dart';
+import 'package:gosheno/app/data/models/slider_model.dart';
 import 'package:http/http.dart' as http;
 
 class BookApiClient {
@@ -13,7 +14,7 @@ class BookApiClient {
 
   BookApiClient({required this.httpClient});
 
-  String baseUrl = webserviceBaseUrl;
+  String baseUrl = AppConstants.webserviceBaseUrl;
   Map<String, String> headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     HttpHeaders.authorizationHeader: 'bd6d553fc3af11c7ba3793d87ef28e53',
@@ -254,7 +255,7 @@ class BookApiClient {
     catch (_) {}
   }
 
-  Future addNewComment(int bookId, String comment, int rate) async {
+  Future addNewComment(int bookId, String comment, int rate,int userId) async {
     try {
       var response = await httpClient.post(
         Uri.parse(baseUrl),
@@ -264,6 +265,7 @@ class BookApiClient {
           'book': bookId.toString(),
           'comment': comment,
           'rate': rate.toString(),
+          'uid': userId.toString(),
         },
       );
       if (response.statusCode == 200) {
@@ -292,7 +294,7 @@ class BookApiClient {
         Uri.parse(baseUrl),
         headers: headers,
         body: {
-          'RequestType': 'bookinfo',
+          'RequestType': 'info',
           'book': bookId.toString(),
         },
       );
@@ -302,6 +304,38 @@ class BookApiClient {
           return {
             'status': true,
             'book': Book.fromJson(result),
+          };
+        } //
+        else {
+          return {
+            'status': false,
+            'error': result[1],
+          };
+        }
+      } else {
+        log('error -get');
+      }
+    } //
+    catch (_) {}
+  }
+
+  Future getSimpleBookInfo(int bookId) async {
+    try {
+      var response = await httpClient.post(
+        Uri.parse(baseUrl),
+        headers: headers,
+        body: {
+          'RequestType': 'info',
+          'book': bookId.toString(),
+        },
+      );
+      if (response.statusCode == 200) {
+        var result = json.decode(response.body);
+        if (result[0] != 'error') {
+          Book book = Book.fromJson(result);
+          return {
+            'status': true,
+            'book': book,
           };
         } //
         else {
@@ -329,7 +363,6 @@ class BookApiClient {
       );
       if (response.statusCode == 200) {
         List result = json.decode(response.body);
-        log(result.toString());
         if (result[0] != 'error') {
           List<Book> books = [];
           for (var item in result) {
@@ -404,6 +437,191 @@ class BookApiClient {
           List<Book> books = [];
           for (var item in result) {
             books.add(Book.fromJson(item));
+          }
+          return {
+            'status': true,
+            'books': books,
+          };
+        } //
+        else {
+          return {
+            'status': false,
+            'error': result[1],
+          };
+        }
+      } else {
+        log('error -get');
+      }
+    } //
+    catch (_) {}
+  }
+
+  Future getMyBooks(int id) async {
+    try {
+      var response = await httpClient.post(
+        Uri.parse(baseUrl),
+        headers: headers,
+        body: {
+          'RequestType': 'mybooks',
+          'uid': id.toString(),
+        },
+      );
+      if (response.statusCode == 200) {
+        var result = json.decode(response.body);
+        if (result[0] != 'error') {
+          List<Book> books = [];
+          for (var item in result) {
+            var bookResponse = await getBookInfo(int.parse(item['book_id']));
+            if(bookResponse['status']){
+              books.add(bookResponse['book']);
+            }
+          }
+          return {
+            'status': true,
+            'books': books,
+          };
+        } //
+        else {
+          return {
+            'status': false,
+            'error': result[1],
+          };
+        }
+      } else {
+        log('error -get');
+      }
+    } //
+    catch (_) {}
+  }
+
+  Future topSellerBook()async{
+    try {
+      var response = await httpClient.post(
+        Uri.parse(baseUrl),
+        headers: headers,
+        body: {
+          'RequestType': 'topsells',
+        },
+      );
+      if (response.statusCode == 200) {
+        var result = json.decode(response.body);
+        if (result[0] != 'error') {
+          List<Book> books = [];
+          for (var item in result) {
+            var bookResponse = await getBookInfo(int.parse(item['sellsbook']));
+            if(bookResponse['status']){
+              books.add(bookResponse['book']);
+            }
+          }
+          return {
+            'status': true,
+            'books': books,
+          };
+        } //
+        else {
+          return {
+            'status': false,
+            'error': result[1],
+          };
+        }
+      } else {
+        log('error -get');
+      }
+    } //
+    catch (_) {}
+  }
+
+  Future getSliders() async {
+    try {
+      var response = await httpClient.post(
+        Uri.parse(baseUrl),
+        headers: headers,
+        body: {
+          'RequestType': 'sliders',
+        },
+      );
+      if (response.statusCode == 200) {
+        var result = json.decode(response.body);
+        if (result[0] != 'error') {
+          List<BookSlider> sliders = [];
+          for (var item in result) {
+            sliders.add(BookSlider.fromJson(item));
+          }
+          return {
+            'status': true,
+            'sliders': sliders,
+          };
+        } //
+        else {
+          return {
+            'status': false,
+            'error': result[1],
+          };
+        }
+      } else {
+        log('error -get');
+      }
+    } //
+    catch (_) {}
+  }
+
+  Future getActiveBooks(int id)async{
+    try {
+      var response = await httpClient.post(
+        Uri.parse(baseUrl),
+        headers: headers,
+        body: {
+          'RequestType': 'mybooksactive',
+          'uid': id.toString(),
+        },
+      );
+      if (response.statusCode == 200) {
+        var result = json.decode(response.body);
+        if (result[0] != 'error') {
+          List<Book> books = [];
+          for (var item in result) {
+            var bookResponse = await getBookInfo(int.parse(item['book_id']));
+            if(bookResponse['status']){
+              books.add(bookResponse['book']);
+            }
+          }
+          return {
+            'status': true,
+            'books': books,
+          };
+        } //
+        else {
+          return {
+            'status': false,
+            'error': result[1],
+          };
+        }
+      } else {
+        log('error -get');
+      }
+    } //
+    catch (_) {}
+  }
+
+  Future getMyFavoriteBooks(int id)async{
+    try {
+      var response = await httpClient.post(
+        Uri.parse(baseUrl),
+        headers: headers,
+        body: {
+          'RequestType': 'myfav',
+          'uid': id.toString(),
+        },
+      );
+      if (response.statusCode == 200) {
+        var result = json.decode(response.body);
+        if (result[0] != 'error') {
+          List<Book> books = [];
+          for (var item in result) {
+            var bookResponse = await getBookInfo(int.parse(item['book_id']));
+            if(bookResponse['status']){
+              books.add(bookResponse['book']);
+            }
           }
           return {
             'status': true,

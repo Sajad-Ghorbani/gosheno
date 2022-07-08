@@ -8,10 +8,10 @@ class Book {
   String name;
   String enName;
   String author;
-  String content;
-  String bookLink;
-  String soundLink;
-  String? soundDemo;
+  String? content;
+  String? bookLink;
+  String? soundLink;
+  String soundDemo;
   String short;
   String about;
   String cat;
@@ -20,19 +20,19 @@ class Book {
   String pic;
   String authorContent;
   String ages;
-  String? tId;
-  String? shows;
-  String? rate;
+  String tId;
+  String shows;
+  String rate;
 
   Book({
     required this.id,
     required this.name,
     required this.enName,
     required this.author,
-    required this.content,
-    required this.bookLink,
-    required this.soundLink,
-    this.soundDemo,
+    this.content,
+    this.bookLink,
+    this.soundLink,
+    required this.soundDemo,
     required this.short,
     required this.about,
     required this.cat,
@@ -41,9 +41,9 @@ class Book {
     required this.pic,
     required this.authorContent,
     required this.ages,
-    this.tId,
-    this.shows,
-    this.rate,
+    required this.tId,
+    required this.shows,
+    required this.rate,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);

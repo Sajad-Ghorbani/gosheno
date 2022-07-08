@@ -8,82 +8,62 @@ import 'package:gosheno/app/routes/app_pages.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/fluent.dart';
 import 'package:iconify_flutter/icons/uim.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
 
-import '../core/theme/app_color.dart';
-import '../core/theme/app_text_theme.dart';
+import '../../../core/theme/app_color.dart';
+import '../../../core/theme/app_text_theme.dart';
 
-class BookCard extends StatelessWidget {
-  const BookCard({
+class WideBookCard extends StatelessWidget {
+  const WideBookCard({
     Key? key,
-    required this.books,
+    required this.onBuyTap,
     required this.tag,
-    this.hasText = false,
-    this.text,
     required this.onBookmarkPressed,
     required this.myBooks,
+    required this.books,
   }) : super(key: key);
+  final VoidCallback onBuyTap;
   final String tag;
-  final List<Book> books;
-  final bool hasText;
-  final String? text;
-
-  /// Called when the bookmark button is pressed.
-  /// The argument is the book that is being bookmarked.
-  /// The return value is whether the book is bookmarked or not.
-  /// If the return value is false, the book is not bookmarked.
-  /// If the return value is true, the book is bookmarked.
-  /// The default value is false.
   final ValueChanged<String> onBookmarkPressed;
   final List<Book> myBooks;
+  final List<Book> books;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 320,
+    return Container(
+      color: kGreenAccentColor,
+      height: 220,
       child: ListView.separated(
-        itemCount: books.length > 8 ? 8 : books.length,
-        padding: const EdgeInsets.all(10),
-        scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
+        itemCount: books.length,
         itemBuilder: (context, index) {
           Book book = books[index];
-          bool isBookmarked = myBooks
-              .any((myBook) => myBook.id == book.id);
-          if (hasText) {
-            if (index == 0) {
-              return SizedBox(
-                width: 160,
-                child: Center(
-                  child: Text(
-                    text!,
-                    textAlign: TextAlign.center,
-                    style: kBodyLarge.copyWith(color: kWhiteColor, height: 1.5),
-                  ),
-                ),
-              );
-            }
+          bool isBookmarked = myBooks.any((myBook) => myBook.id == book.id);
+          if (index == 0) {
+            return Padding(
+              padding: const EdgeInsets.symmetric( horizontal: 20),
+              child: Image.asset(
+                'assets/images/week-books.png',
+                height: 150,
+              ),
+            );
           }
           return Stack(
             children: [
-              Container(
-                decoration: const BoxDecoration(
+              Card(
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
-                  color: kWhiteColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: kGreyColor,
-                      blurRadius: 1,
-                      offset: Offset(1, 1),
-                    ),
-                  ],
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                child: Column(
+                margin: EdgeInsets.zero,
+                child: Row(
                   children: [
-                    SizedBox(
-                      height: 150,
-                      width: 100,
+                    Container(
+                      height: 160,
+                      width: 120,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10),
                       child: Stack(
                         children: [
                           Positioned(
@@ -92,8 +72,7 @@ class BookCard extends StatelessWidget {
                               tag: '$tag-${book.enName}',
                               child: CachedNetworkImage(
                                 imageUrl: '${AppConstants.baseUrl}${book.pic}',
-                                width: 86,
-                                height: 150,
+                                width: 80,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -121,13 +100,14 @@ class BookCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 150,
-                          child: Text(
+                    Container(
+                      width: 250,
+                      padding: const EdgeInsets.only(left: 50),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
                             book.short,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
@@ -136,43 +116,63 @@ class BookCard extends StatelessWidget {
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        const SizedBox(height: 5),
-                        SizedBox(
-                          width: 150,
-                          height: 50,
-                          child: Text(
-                            book.name,
-                            style: kBodyMedium.copyWith(fontSize: 16),
+                          const SizedBox(height: 5),
+                          SizedBox(
+                            width: 200,
+                            child: Text(
+                              book.name,
+                              style: kBodyMedium.copyWith(fontSize: 16),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        SizedBox(
-                          width: 150,
-                          height: 18,
-                          child: Text(
+                          const SizedBox(height: 5),
+                          Text(
                             book.author,
                             style: const TextStyle(
                               color: kGreyColor,
                               fontSize: 12,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: RatingBarIndicator(
-                        rating: double.parse(book.rate),
-                        itemBuilder: (context, index) => const Iconify(
-                          Uim.star,
-                          color: kAmberColor,
-                        ),
-                        unratedColor: kAmberColor.withOpacity(0.3),
-                        itemCount: 5,
-                        itemSize: 20,
-                        direction: Axis.horizontal,
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Visibility(
+                                visible: book.offCount() > 0,
+                                child: Text(
+                                  '${book.sPrice.seRagham()} تومان / ',
+                                  style: kBodyText.copyWith(
+                                    color: kDarkRedColor,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '${book.price.seRagham()} تومان',
+                                style: TextStyle(
+                                  color: kDarkRedColor,
+                                  fontSize: 12,
+                                  decoration: book.offCount() > 0
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: RatingBarIndicator(
+                              rating: double.parse(book.rate),
+                              itemBuilder: (context, index) => const Iconify(
+                                Uim.star,
+                                color: kAmberColor,
+                              ),
+                              unratedColor: kAmberColor.withOpacity(0.3),
+                              itemCount: 5,
+                              itemSize: 20,
+                              direction: Axis.horizontal,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -190,7 +190,7 @@ class BookCard extends StatelessWidget {
                       Get.toNamed(
                         Routes.singleBookScreen,
                         parameters: {'tag': '$tag-${book.enName}'},
-                        arguments: {book,isBookmarked},
+                        arguments: {book, isBookmarked},
                       );
                     },
                     borderRadius: const BorderRadius.all(
@@ -200,7 +200,7 @@ class BookCard extends StatelessWidget {
                 ),
               ),
               Positioned(
-                right: 0,
+                left: 0,
                 top: 0,
                 child: IconButton(
                   icon: isBookmarked

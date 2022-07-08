@@ -14,6 +14,9 @@ class CustomTextField extends StatelessWidget {
     this.prefixIcon,
     this.maxLines = 1,
     this.minLines = 1,
+    this.autofocus = false,
+    this.textAlign = TextAlign.center,
+    this.keyboardType = TextInputType.text,
   }) : super(key: key);
   final String labelText;
   final TextEditingController controller;
@@ -26,6 +29,9 @@ class CustomTextField extends StatelessWidget {
   final Widget? prefixIcon;
   final int maxLines;
   final int minLines;
+  final bool autofocus;
+  final TextAlign textAlign;
+  final TextInputType keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +48,13 @@ class CustomTextField extends StatelessWidget {
           prefixIcon: prefixIcon,
         ),
         validator: validator,
-        textAlign: TextAlign.center,
+        textAlign: textAlign,
         onChanged: onChanged,
         obscureText: obscureText,
         minLines: minLines,
         maxLines: maxLines,
+        autofocus: autofocus,
+        keyboardType: keyboardType,
       ),
     );
   }

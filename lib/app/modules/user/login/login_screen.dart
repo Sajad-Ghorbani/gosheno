@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gosheno/app/global_widgets/custom_button_widget.dart';
 import 'package:gosheno/app/global_widgets/loading.dart';
 import 'package:gosheno/app/modules/user/user_controller.dart';
 import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/global_widgets/circle_button_widget.dart';
 import 'package:gosheno/app/global_widgets/custom_text_field.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
+import 'package:iconify_flutter/icons/bi.dart';
 import 'package:iconify_flutter/icons/ph.dart';
 import 'package:iconify_flutter/icons/ri.dart';
 
@@ -42,7 +44,10 @@ class LoginScreen extends GetView<UserController> {
                           height: controller.phoneTextFieldHeight.value,
                           prefixIcon: const Padding(
                             padding: EdgeInsets.all(10),
-                            child: Iconify(Ri.smartphone_line,color: kGreyColor,),
+                            child: Iconify(
+                              Ri.smartphone_line,
+                              color: kGreyColor,
+                            ),
                           ),
                         ),
                       ),
@@ -74,7 +79,10 @@ class LoginScreen extends GetView<UserController> {
                           ),
                           prefixIcon: const Padding(
                             padding: EdgeInsets.all(10.0),
-                            child: Iconify(Ph.password_bold,color: kGreyColor,),
+                            child: Iconify(
+                              Ph.password_bold,
+                              color: kGreyColor,
+                            ),
                           ),
                         ),
                       ),
@@ -90,6 +98,46 @@ class LoginScreen extends GetView<UserController> {
                           'ورود به پنل کاربری',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSecondary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      InkWell(
+                        onTap: () {
+                          Get.defaultDialog(
+                            title: 'فراموشی رمز عبور',
+                            content: CustomTextField(
+                              labelText: 'موبایل خود را وارد کنید',
+                              controller: controller.forgotPasswordController,
+                              height: 45,
+                              keyboardType: TextInputType.number,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 30,vertical: 20),
+                            confirm: CustomButtonWidget(
+                              onTap: () {
+                                controller.forgotPassword(context);
+                              },
+                              color: kGreenAccentColor,
+                              child: const Text(
+                                'ارسال',
+                                style: TextStyle(
+                                  color: kWhiteColor,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
+                        child: const Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          child: Text(
+                            'رمز عبور خود را فراموش کرده اید؟',
+                            style: TextStyle(
+                              color: kGreyColor,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                       ),
@@ -143,9 +191,9 @@ class LoginScreen extends GetView<UserController> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                Image.asset(
-                                  'assets/images/google_icon.png',
-                                  width: 20,
+                                const Iconify(
+                                  Bi.google,
+                                  size: 16,
                                   color: kWhiteColor,
                                 ),
                                 Text(

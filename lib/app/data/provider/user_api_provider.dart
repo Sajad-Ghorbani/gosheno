@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:gosheno/app/core/utils/app_constants.dart';
 import 'package:gosheno/app/data/models/book_model.dart';
+import 'package:gosheno/app/data/models/copun_model.dart';
 import 'package:gosheno/app/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,8 +13,7 @@ class UserApiClient {
 
   UserApiClient({required this.httpClient});
 
-  String baseUrl = webserviceBaseUrl;
-  String smsUrl = smsApiUrl;
+  String baseUrl = AppConstants.webserviceBaseUrl;
   Map<String, String> headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     HttpHeaders.authorizationHeader: 'bd6d553fc3af11c7ba3793d87ef28e53',
@@ -100,30 +100,16 @@ class UserApiClient {
 
   Future<bool> sendSms(String code, String to) async {
     try {
-      Map<String, dynamic> body = {
-        'username': '09124124539',
-        'password': '2B#ZR',
-        'text': code,
-        'to': to,
-        'bodyId': '70765',
-      };
-      var response = await http.post(
-        Uri.parse(smsUrl),
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-        },
-        body: body,
+      var response = await http.get(
+        Uri.parse(
+            'http://ippanel.com:8080/?apikey=8dxRku-H4fM1KfuBEnqFw_hPrCKttJLxsvLo1pzzKVw=&pid=7tenu6cbn3akg66&fnum=+983000505&tnum=$to&p1=code&v1=$code'),
       );
-      if (response.statusCode == 200) {
-        var result = json.decode(response.body);
-        if (result['Value'].length > 10) {
-          return true;
-        } //
-        else {
-          return false;
-        }
+      if (response.statusCode == 201) {
+        return true;
       } //
-      return false;
+      else {
+        return false;
+      }
     } //
     catch (_) {
       return false;
@@ -142,7 +128,7 @@ class UserApiClient {
       );
       if (response.statusCode == 200) {
         var result = json.decode(response.body);
-        if (result.runtimeType == Map) {
+        if (result[0] != 'error') {
           User user = User.fromJson(result);
           return {
             'status': true,
@@ -236,13 +222,13 @@ class UserApiClient {
     catch (_) {}
   }
 
-  Future getMyBooks(int id) async {
+  Future getBuyBooks(int id) async {
     try {
       var response = await httpClient.post(
         Uri.parse(baseUrl),
         headers: headers,
         body: {
-          'RequestType': 'mybooks',
+          'RequestType': 'buybooks',
           'uid': id.toString(),
         },
       );
@@ -261,6 +247,39 @@ class UserApiClient {
             'error': result[1],
           };
         }
+      } //
+      else {
+        log('error -get');
+      }
+    } //
+    catch (_) {}
+  }
+
+  Future resetPassword(String phoneNumber) async {
+    try {
+      Map<String, String> body = {
+        'RequestType': 'resetpassword',
+        'mobile': phoneNumber,
+      };
+      var response = await httpClient.post(
+        Uri.parse(baseUrl),
+        headers: headers,
+        body: body,
+      );
+      if (response.statusCode == 200) {
+        var result = json.decode(response.body);
+        if (result[0] != 'error') {
+          return {
+            'status': true,
+            'token': result[1],
+          };
+        } //
+        else {
+          return {
+            'status': false,
+            'error': result[1],
+          };
+        }
       } else {
         log('error -get');
       }
@@ -268,23 +287,54 @@ class UserApiClient {
     catch (_) {}
   }
 
-  Future getBuyBooks(int id) async {
+  Future confirmPassword(String phoneNumber) async {
+    try {
+      Map<String, String> body = {
+        'RequestType': 'confirmpassword',
+        'mobile': phoneNumber,
+      };
+      var response = await httpClient.post(
+        Uri.parse(baseUrl),
+        headers: headers,
+        body: body,
+      );
+      if (response.statusCode == 200) {
+        var result = json.decode(response.body);
+        if (result[0] != 'error') {
+          return {
+            'status': true,
+          };
+        } //
+        else {
+          return {
+            'status': false,
+            'error': result[1],
+          };
+        }
+      } else {
+        log('error -get');
+      }
+    } //
+    catch (_) {}
+  }
+
+  Future getCopuns() async {
     try {
       var response = await httpClient.post(
         Uri.parse(baseUrl),
         headers: headers,
         body: {
-          'RequestType': 'buybooks',
-          'uid': id.toString(),
+          'RequestType': 'copuns',
         },
       );
       if (response.statusCode == 200) {
         var result = json.decode(response.body);
         if (result[0] != 'error') {
-          List<Book> books = result.map((book) => Book.fromJson(book)).toList();
+          List<Copun> copuns =
+              result.map((copun) => Copun.fromJson(copun)).toList();
           return {
             'status': true,
-            'books': books,
+            'copuns': copuns,
           };
         } //
         else {

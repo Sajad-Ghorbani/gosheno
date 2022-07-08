@@ -7,16 +7,16 @@ class User {
   int? id;
   String name;
   String mobile;
-  String password;
+  String? password;
   String? email;
-  int? sex;
-  int? wallet;
+  String? sex;
+  String? wallet;
 
   User({
     this.id,
     required this.name,
     required this.mobile,
-    required this.password,
+    this.password,
     this.email,
     this.sex,
     this.wallet,

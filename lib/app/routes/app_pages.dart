@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:gosheno/app/modules/audio_player/audio_player_binding.dart';
 import 'package:gosheno/app/modules/comment/comment_binding.dart';
+import 'package:gosheno/app/modules/home/all_book/all_book.dart';
 import 'package:gosheno/app/modules/home/category/category_screen.dart';
 import 'package:gosheno/app/modules/book/single_book/single_book_screen.dart';
 import 'package:gosheno/app/modules/home/home_binding.dart';
@@ -46,5 +47,6 @@ class AppRoutes {
       binding: AudioPlayerBinding(),
     ),
     GetPage(name: Routes.categoryScreen, page: () => const CategoryScreen()),
+    GetPage(name: Routes.allBookScreen, page: () => const AllBookScreen()),
   ];
 }

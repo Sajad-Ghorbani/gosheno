@@ -2,16 +2,22 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gosheno/app/core/utils/app_constants.dart';
+import 'package:gosheno/app/data/provider/user_api_provider.dart';
 import 'package:gosheno/app/data/repository/book_repository.dart';
+import 'package:gosheno/app/data/repository/user_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import '../../data/models/comment_model.dart';
+import '../../data/models/user_model.dart';
 
 class CommentController extends GetxController {
   final BookRepository bookRepository;
 
   CommentController({required this.bookRepository});
 
-  TextEditingController commentController = TextEditingController();
+  TextEditingController commentTextController = TextEditingController();
   List<BookComment> comments = [];
   double commentRating = 3;
   String bookId = Get.parameters['bookId'] ?? '-1';
@@ -22,16 +28,25 @@ class CommentController extends GetxController {
     comments = Get.arguments;
   }
 
+  @override
+  void onClose(){
+    super.onClose();
+    commentTextController.dispose();
+  }
+
   void addComment() async {
     try {
-      if (commentController.text.isEmpty) return;
+      SharedPreferences pref = await SharedPreferences.getInstance();
+      if (commentTextController.text.isEmpty) return;
+      int userId = pref.getInt(AppConstants.userIdKey) ?? -1;
       var response = await bookRepository.addNewComment(
         bookId: int.parse(bookId),
-        comment: commentController.text,
+        comment: commentTextController.text,
         rate: commentRating.toInt(),
+        userId: userId,
       );
       if (response['status']) {
-        commentController.clear();
+        commentTextController.clear();
         commentRating = 3;
         Get.back();
         Get.snackbar(
@@ -48,5 +63,27 @@ class CommentController extends GetxController {
     catch (e) {
       log(e.toString());
     }
+  }
+
+  Future<User?> getUser(int userId) async {
+    try {
+      UserRepository userRepository = UserRepository(
+        apiClient: UserApiClient(
+          httpClient: http.Client(),
+        ),
+      );
+      User? user;
+      var response = await userRepository.getUserInfo(id: userId);
+      if(response['status']){
+        user = response['user'];
+        return user;
+      }//
+      else{
+        log('error in get user');
+      }
+    } on Exception catch (_) {
+      log('no connection ***********');
+    }
+    return null;
   }
 }

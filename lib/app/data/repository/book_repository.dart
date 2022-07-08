@@ -93,9 +93,13 @@ class BookRepository {
   /// 'status': true,
   /// }
   /// ```
-  Future addNewComment(
-      {required int bookId, required String comment, required int rate}) async {
-    return await bookApiClient.addNewComment(bookId, comment, rate);
+  Future addNewComment({
+    required int bookId,
+    required String comment,
+    required int rate,
+    required int userId,
+  }) async {
+    return await bookApiClient.addNewComment(bookId, comment, rate, userId);
   }
 
   /// This method is used to get book info
@@ -110,6 +114,18 @@ class BookRepository {
   /// ```
   Future getBookInfo({required int bookId}) async {
     return await bookApiClient.getBookInfo(bookId);
+  }
+
+  /// This method is used to get simple info of book.
+  ///
+  /// [bookId] is id of book.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - status: true if success, false otherwise.
+  /// - book: a [Book] if success, null otherwise.
+  /// - error: a string if failed, null otherwise.
+  Future getSimpleBookInfo({required int bookId}) async {
+    return await bookApiClient.getSimpleBookInfo(bookId);
   }
 
   /// This method is used to get list of books by search
@@ -158,7 +174,63 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - status: true if success, false otherwise.
   /// - error: a string if failed, null otherwise.
-  Future addNewFavoriteBook({required int userId, required int bookId})async{
+  Future addNewFavoriteBook({required int userId, required int bookId}) async {
     return await bookApiClient.addNewFavoriteBook(userId, bookId);
+  }
+
+  /// This method is used to get books that buy with user.
+  ///
+  /// [id] is the id of user.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if get user books successfully, otherwise `false`.
+  /// - `books`: `List<Book>` if get user books successfully, otherwise `null`.
+  /// - `error`: `String` if get user books unsuccessfully, otherwise `null`.
+  Future getMyBooks({required int id}) async {
+    return await bookApiClient.getMyBooks(id);
+  }
+
+  /// This method is used to get top seller books.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if get top seller books successfully, otherwise `false`.
+  /// - `books`: `List<Book>` if get top seller books successfully, otherwise `null`.
+  /// - `error`: `String` if get top seller books unsuccessfully, otherwise `null`.
+  Future topSellerBook() async {
+    return await bookApiClient.topSellerBook();
+  }
+
+  /// This method is used to get top sliders.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if get top sliders successfully, otherwise `false`.
+  /// - `sliders`: `List<Slider>` if get top sliders successfully, otherwise `null`.
+  /// - `error`: `String` if get top sliders unsuccessfully, otherwise `null`.
+  Future getSliders() async {
+    return await bookApiClient.getSliders();
+  }
+
+  /// This method is used to get books that is active for user.
+  ///
+  /// [userId] is the id of user.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if get user books successfully, otherwise `false`.
+  /// - `books`: `List<Book>` if get user books successfully, otherwise `null`.
+  /// - `error`: `String` if get user books unsuccessfully, otherwise `null`.
+  Future getActiveBooks({required int userId}) async {
+    return await bookApiClient.getActiveBooks(userId);
+  }
+
+  /// This method is used to get favorite books for user.
+  ///
+  /// [userId] is the id of user.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if get favorite books successfully, otherwise `false`.
+  /// - `books`: `List<Book>` if get favorite books successfully, otherwise `null`.
+  /// - `error`: `String` if get favorite books unsuccessfully, otherwise `null`.
+  Future getMyFavoriteBooks({required int userId}) async {
+    return await bookApiClient.getMyFavoriteBooks(userId);
   }
 }

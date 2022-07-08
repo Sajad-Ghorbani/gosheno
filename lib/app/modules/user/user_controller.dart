@@ -4,7 +4,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gosheno/app/core/theme/app_color.dart';
+import 'package:gosheno/app/core/utils/app_constants.dart';
 import 'package:gosheno/app/data/repository/user_repository.dart';
+import 'package:gosheno/app/global_widgets/custom_button_widget.dart';
+import 'package:gosheno/app/global_widgets/custom_text_field.dart';
 import 'package:gosheno/app/routes/app_pages.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +26,8 @@ class UserController extends GetxController {
   TextEditingController signupCodeController = TextEditingController();
   TextEditingController loginPhoneController = TextEditingController();
   TextEditingController loginPasswordController = TextEditingController();
+  TextEditingController forgotPasswordController = TextEditingController();
+  TextEditingController confirmCodeController = TextEditingController();
 
   late Timer timer;
 
@@ -67,7 +73,7 @@ class UserController extends GetxController {
 
   checkUserLoggedIn() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    bool userLogged = pref.getBool('loggedIn') ?? false;
+    bool userLogged = pref.getBool(AppConstants.loggedInKey) ?? false;
     if (userLogged) {
       Get.offNamed(Routes.mainScreen);
     }
@@ -120,9 +126,9 @@ class UserController extends GetxController {
       }
       if (response['status']) {
         SharedPreferences pref = await SharedPreferences.getInstance();
-        pref.setInt('userId', response['id']);
-        pref.setBool('loggedIn', true);
-        pref.setString('userPassword', password);
+        pref.setInt(AppConstants.userIdKey, response['id']);
+        pref.setBool(AppConstants.loggedInKey, true);
+        pref.setString(AppConstants.userPasswordKey, password);
         showLoading = false;
         update();
         Get.snackbar('ثبت نام', 'ثبت نام با موفقیت انجام شد');
@@ -207,9 +213,9 @@ class UserController extends GetxController {
       }
       if (response['status']) {
         SharedPreferences pref = await SharedPreferences.getInstance();
-        pref.setInt('userId', response['id']);
-        pref.setBool('loggedIn', true);
-        pref.setString('userPassword', password);
+        pref.setInt(AppConstants.userIdKey, response['id']);
+        pref.setBool(AppConstants.loggedInKey, true);
+        pref.setString(AppConstants.userPasswordKey, password);
         Get.snackbar('ورود', 'ورود با موفقیت انجام شد');
         showLoading = false;
         update();
@@ -244,7 +250,7 @@ class UserController extends GetxController {
       }
       if (login) {
         SharedPreferences pref = await SharedPreferences.getInstance();
-        String? pass = pref.getString('userPassword');
+        String? pass = pref.getString(AppConstants.userPasswordKey);
         loginUser(loginFormKey.currentContext,
             phoneOrEmail: account!.email, pass: pass!);
       } //
@@ -351,6 +357,8 @@ class UserController extends GetxController {
         }
       } //
       else {
+        showLoading = false;
+        update();
         Get.snackbar('خطا', 'خطایی رخ داده است، لطفا دوباره تلاش کنید.');
       }
     }
@@ -430,5 +438,118 @@ class UserController extends GetxController {
         resendTime.value--;
       }
     });
+  }
+
+  void forgotPassword(BuildContext context) async {
+    String phone = forgotPasswordController.text.trim();
+    FocusScope.of(context).unfocus();
+    Get.back();
+    showLoading = true;
+    update();
+    var response = await userRepository.resetPassword(
+      phoneNumber: phone,
+    );
+    if (response['status']) {
+      showLoading = false;
+      update();
+      Get.defaultDialog(
+        title: 'کد فعالسازی',
+        content: Column(
+          children: [
+            const Text(
+              'کد فعالسازی به شماره تلفن شما ارسال شد.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            CustomTextField(
+              labelText: 'کد را وارد کنید.',
+              controller: confirmCodeController,
+              height: 45,
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    resendTime.value == 60
+                        ? resendCode(phone)
+                        : null;
+                  },
+                  child: const Text('ارسال مجدد کد'),
+                ),
+                Container(
+                  decoration: const BoxDecoration(
+                    border: Border.symmetric(vertical: BorderSide()),
+                  ),
+                  width: 1,
+                  height: 20,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+                Obx(
+                  () => SizedBox(
+                    width: 25,
+                    child: Text('${resendTime.value}'),
+                  ),
+                ),
+                const Text('ثانیه'),
+              ],
+            ),
+          ],
+        ),
+        confirm: CustomButtonWidget(
+          onTap: () {
+            confirmPassword(phone, response['token'], context);
+          },
+          color: kGreenAccentColor,
+          child: const Text('تایید'),
+        ),
+      );
+    } //
+    else {
+      showLoading = false;
+      update();
+      Get.snackbar('خطا', 'خطایی رخ داده است، لطفا دوباره تلاش کنید.');
+    }
+  }
+
+  void confirmPassword(
+      String phoneNumber, int token, BuildContext context) async {
+    if (confirmCodeController.text.isEmpty) {
+      Get.snackbar('خطا', 'کد تایید را وارد کنید.');
+    } //
+    else if (int.parse(confirmCodeController.text) != token) {
+      Get.snackbar('خطا', 'کد وارد شده صحیح نمی باشد.');
+    } else {
+      FocusScope.of(context).unfocus();
+      Get.back();
+      showLoading = true;
+      update();
+      var response = await userRepository.confirmPassword(
+        phoneNumber: phoneNumber,
+      );
+      if (response['status']) {
+        showLoading = false;
+        update();
+        Get.snackbar('رمز جدید', 'رمز عبور جدید برای شما ارسال شد.');
+      } //
+      else {
+        Get.snackbar('خطا', 'خطایی رخ داده است، لطفا دوباره تلاش کنید.');
+      }
+    }
+  }
+
+  resendCode(String phone)async {
+    startTimer();
+    var response = await userRepository.resetPassword(
+      phoneNumber: phone,
+    );
+    if(response['status']){
+      Get.snackbar('کد فعالسازی', 'کد فعالسازی برای شما ارسال شد.');
+    }//
+    else{
+      Get.snackbar('خطا', 'خطایی رخ داده است، لطفا دوباره تلاش کنید.');
+    }
   }
 }

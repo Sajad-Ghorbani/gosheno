@@ -103,18 +103,6 @@ class UserRepository {
         id, name, phoneNumber, email, password, sex);
   }
 
-  /// This method is used to get books of user.
-  ///
-  /// [id] is the id of user.
-  ///
-  /// Return a [Future] that contains a [Map] with the following keys:
-  /// - `status`: `true` if get user books successfully, otherwise `false`.
-  /// - `books`: `List<Book>` if get user books successfully, otherwise `null`.
-  /// - `error`: `String` if get user books unsuccessfully, otherwise `null`.
-  Future getMyBooks({required int id}) async {
-    return await apiClient.getMyBooks(id);
-  }
-
   /// This method is used to get books purchased by the user.
   ///
   /// [id] is the id of user.
@@ -123,7 +111,40 @@ class UserRepository {
   /// - `status`: `true` if get user books successfully, otherwise `false`.
   /// - `books`: `List<Book>` if get user books successfully, otherwise `null`.
   /// - `error`: `String` if get user books unsuccessfully, otherwise `null`.
-  Future getBuyBooks({required int id})async{
+  Future getBuyBooks({required int id}) async {
     return await apiClient.getBuyBooks(id);
+  }
+
+  /// This method is used to reset password.
+  ///
+  /// [phoneNumber] is the phone number of user.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if reset password successfully, otherwise `false`.
+  /// - `token`: `String` if reset password successfully, otherwise `null`.
+  /// - `error`: `String` if reset password unsuccessfully, otherwise `null`.
+  Future resetPassword({required String phoneNumber}) async {
+    return await apiClient.resetPassword(phoneNumber);
+  }
+
+  /// This method is used to confirm password.
+  ///
+  /// [phoneNumber] is the phone number of user.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if confirm password successfully, otherwise `false`.
+  /// - `error`: `String` if confirm password unsuccessfully, otherwise `null`.
+  Future confirmPassword({required String phoneNumber}) async {
+    return await apiClient.confirmPassword(phoneNumber);
+  }
+
+  /// This method is used to get copuns.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if get copuns successfully, otherwise `false`.
+  /// - `copuns`: `List<Copun>` if get copuns successfully, otherwise `null`.
+  /// - `error`: `String` if get copuns unsuccessfully, otherwise `null`.
+  Future getCopuns() async {
+    return await apiClient.getCopuns();
   }
 }

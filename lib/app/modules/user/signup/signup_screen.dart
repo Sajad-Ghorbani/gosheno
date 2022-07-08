@@ -320,9 +320,9 @@ class SignupScreen extends GetView<UserController> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Image.asset(
-                                'assets/images/google_icon.png',
-                                width: 20,
+                              const Iconify(
+                                Bi.google,
+                                size: 16,
                                 color: kWhiteColor,
                               ),
                               FittedBox(

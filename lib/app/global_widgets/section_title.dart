@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/core/theme/app_text_theme.dart';
+import 'package:gosheno/app/data/models/book_model.dart';
+import 'package:gosheno/app/routes/app_pages.dart';
 
 class SectionTitle extends StatelessWidget {
-  const SectionTitle(
-      {Key? key,
-      required this.title,
-      this.onTap,
-      this.showMore = true})
-      : super(key: key);
+  const SectionTitle({
+    Key? key,
+    required this.title,
+    this.showMore = true,
+    this.bookList,
+  }) : super(key: key);
   final String title;
-  final VoidCallback? onTap;
   final bool showMore;
+  final List<Book>? bookList;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,13 @@ class SectionTitle extends StatelessWidget {
           ),
           showMore
               ? InkWell(
-                  onTap: onTap,
+                  onTap: () {
+                    Get.toNamed(
+                      Routes.allBookScreen,
+                      parameters: {'title': title},
+                      arguments: bookList,
+                    );
+                  },
                   child: Row(
                     children: const [
                       Text(
