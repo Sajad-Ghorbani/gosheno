@@ -4,18 +4,22 @@ part 'slider_model.g.dart';
 
 @JsonSerializable()
 class BookSlider {
-  String id;
+  int id;
+  String name;
   String image;
   String bookId;
   String model;
   String? url;
+  String? txt;
 
   BookSlider({
     required this.id,
+    required this.name,
     required this.image,
     required this.bookId,
     required this.model,
     this.url,
+    this.txt,
   });
 
   factory BookSlider.fromJson(Map<String, dynamic> json) => _$SliderFromJson(json);

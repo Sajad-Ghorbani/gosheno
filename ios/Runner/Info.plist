@@ -47,5 +47,20 @@
     	<array>
     		<string>audio</string>
     	</array>
+    <key>FlutterDeepLinkingEnabled</key>
+    <true/>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+        <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+        <key>CFBundleURLName</key>
+            <string>open</string>
+        <key>CFBundleURLSchemes</key>
+            <array>
+                <string>gosheno</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>

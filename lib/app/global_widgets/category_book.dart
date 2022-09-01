@@ -22,7 +22,7 @@ class CategoryBook extends StatelessWidget {
   final String tag;
   final Book book;
   final bool isBookmarked;
-  final ValueChanged<String> bookmarkBook;
+  final ValueChanged<Book> bookmarkBook;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,7 @@ class CategoryBook extends StatelessWidget {
                       ),
                     ),
                     Visibility(
-                      visible: book.offCount() > 0,
+                      visible: book.offCount > 0,
                       child: Positioned(
                         right: 0,
                         child: Container(
@@ -71,7 +71,7 @@ class CategoryBook extends StatelessWidget {
                             color: kGreenAccentColor,
                           ),
                           child: Text(
-                            '${book.offCount()}%',
+                            '${book.offCount}%',
                             style: kBodyText.copyWith(
                               color: kWhiteColor,
                               fontSize: 10,
@@ -170,7 +170,7 @@ class CategoryBook extends StatelessWidget {
                   : Fluent.bookmark_28_regular,
             ),
             onPressed: () {
-              bookmarkBook(book.id);
+              bookmarkBook(book);
             },
             padding: const EdgeInsets.all(0),
           ),

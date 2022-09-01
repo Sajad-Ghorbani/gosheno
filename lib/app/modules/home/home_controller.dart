@@ -4,15 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/core/utils/app_constants.dart';
 import 'package:gosheno/app/data/models/book_model.dart';
-import 'package:gosheno/app/data/models/category_model.dart';
 import 'package:gosheno/app/data/models/slider_model.dart';
 import 'package:gosheno/app/data/repository/book_repository.dart';
 import 'package:gosheno/app/routes/app_pages.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:gosheno/app/modules/home/home/home_screen.dart';
 import 'package:gosheno/app/modules/library/library_screen.dart';
-import 'package:gosheno/app/modules/note/note_screen.dart';
-import 'package:gosheno/app/modules/profile/profile_screen.dart';
+import 'package:gosheno/app/modules/category/category_screen.dart';
+import 'package:gosheno/app/modules/profile/profile/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeController extends GetxController {
@@ -24,14 +23,13 @@ class HomeController extends GetxController {
 
   int currentIndex = 0;
   bool showLoading = false;
-  RxBool showCategoryLoading = false.obs;
+  bool showCategoryLoading = false;
   List<Widget> listWidgets = [
     const HomeScreen(key: ValueKey(1)),
-    const NoteScreen(key: ValueKey(2)),
+    const CategoryScreen(key: ValueKey(2)),
     const LibraryScreen(key: ValueKey(3)),
     const ProfileScreen(key: ValueKey(4)),
   ];
-  List<BookCategory> categories = [];
   List<Book> newestBooks = [];
   List<Book> managersBooks = [];
   List<Book> queensBooks = [];
@@ -39,15 +37,11 @@ class HomeController extends GetxController {
   List<Book> offersBooks = [];
   List<Book> topSellsBooks = [];
   List<Book> mostViewedBooks = [];
-  List<Book> categoryBooks = [];
-  List<Book> categoryFavoriteBooks = [];
-  List<Book> categoryOfferBooks = [];
-  List<Book> categoryMostViewedBooks = [];
   List<Book> myBooks = [];
   List<BookSlider> sliders = [];
 
   Book emptyBook = Book(
-    id: '',
+    id: -1,
     name: '',
     enName: '',
     author: '',
@@ -59,10 +53,11 @@ class HomeController extends GetxController {
     sPrice: '',
     pic: '',
     authorContent: '',
-    ages: '',
     rate: '',
     shows: '',
     tId: '',
+    createdAt: '',
+    updatedAt: '',
   );
 
   @override
@@ -81,26 +76,16 @@ class HomeController extends GetxController {
     showLoading = true;
     update();
     await getSliders();
-    await getOffersBook();
-    await getCategories();
+    await getOffersBook(catId: 0);
     await getNewestBooks();
     await getBookOfCategory(1);
     await getBookOfCategory(3);
-    await getMostViewedBooks(false);
-    await getFavoriteBooks();
+    await getMostViewedBooks(catId: 0);
+    await getFavoriteBooks(catId: 0);
     await getMyBooks();
-    await getTopSellsBooks();
+    await getTopSellsBooks(catId: 0);
     showLoading = false;
     update();
-  }
-
-  void initCategoryBooks(String catId) async {
-    showCategoryLoading.value = true;
-    await getOffersBook(catId: catId);
-    await getMostViewedBooks(true, catId: catId);
-    await getFavoriteBooks(catId: catId);
-    await getBooksOfCategory(int.parse(catId));
-    showCategoryLoading.value = false;
   }
 
   getSliders() async {
@@ -115,21 +100,6 @@ class HomeController extends GetxController {
       }
     } catch (e) {
       log(e.toString());
-    }
-  }
-
-  Future<void> getCategories() async {
-    try {
-      Map<String, dynamic> response = await bookRepository.getCategory();
-      if (response['status']) {
-        categories = response['cats'];
-        update();
-      } //
-      else {
-        log(response['error']);
-      }
-    } catch (_) {
-      log('category => no connection **************');
     }
   }
 
@@ -154,10 +124,12 @@ class HomeController extends GetxController {
           await bookRepository.getBooksCategory(catId: id);
       if (response['status']) {
         if (id == 1) {
+          managersBooks = [];
           managersBooks.add(emptyBook);
           managersBooks.addAll(response['books']);
         }
         if (id == 3) {
+          queensBooks = [];
           queensBooks.add(emptyBook);
           queensBooks.addAll(response['books']);
         }
@@ -171,18 +143,12 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> getFavoriteBooks({String? catId}) async {
+  Future<void> getFavoriteBooks({required int catId}) async {
     try {
       Map<String, dynamic> response =
           await bookRepository.getFavoriteBook(catId: catId);
       if (response['status']) {
-        if (catId == null) {
-          favoriteBooks = response['books'];
-        } //
-        else {
-          categoryFavoriteBooks = response['books'];
-        }
-        update();
+        favoriteBooks = response['books'];
       } //
       else {
         log(response['error']);
@@ -192,18 +158,12 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> getOffersBook({String? catId}) async {
+  Future<void> getOffersBook({required int catId}) async {
     try {
       Map<String, dynamic> response =
           await bookRepository.getOffersBook(catId: catId);
       if (response['status']) {
-        if (catId == null) {
-          offersBooks = response['books'];
-        } //
-        else {
-          categoryOfferBooks = response['books'];
-        }
-        update();
+        offersBooks = response['books'];
       } //
       else {
         log(response['error']);
@@ -213,14 +173,12 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> getMostViewedBooks(bool fromCategory, {String? catId}) async {
+  Future<void> getMostViewedBooks({int? catId}) async {
     try {
       Map<String, dynamic> response =
           await bookRepository.getMostVisitedBook(catId: catId);
       if (response['status']) {
-        fromCategory
-            ? categoryMostViewedBooks = response['books']
-            : mostViewedBooks = response['books'];
+        mostViewedBooks = response['books'];
         update();
       } //
       else {
@@ -231,40 +189,21 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> getBooksOfCategory(int id) async {
+  Future<void> getTopSellsBooks({required int catId}) async {
     try {
+      topSellsBooks = [];
       Map<String, dynamic> response =
-          await bookRepository.getBooksCategory(catId: id);
+          await bookRepository.topSellerBook(catId: catId);
       if (response['status']) {
-        categoryBooks = response['books'];
+        topSellsBooks.add(emptyBook);
+        topSellsBooks.addAll(response['books']);
         update();
       } //
       else {
         log(response['error']);
       }
     } catch (_) {
-      log('books of cat => no connection **************');
-    }
-  }
-
-  void bookmarkBook(String bookId) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      int userId = prefs.getInt(AppConstants.userIdKey) ?? -1;
-      if (userId == -1) {
-        return;
-      }
-      Map<String, dynamic> response = await bookRepository.addNewFavoriteBook(
-          userId: userId, bookId: int.parse(bookId));
-      if (response['status']) {
-        getMyBooks();
-        update();
-      } //
-      else {
-        log(response['error']);
-      }
-    } catch (_) {
-      log('bookmark => no connection **************');
+      log('top sell => no connection **************');
     }
   }
 
@@ -289,12 +228,32 @@ class HomeController extends GetxController {
     }
   }
 
-  void willPopCategoryScreen() {
-    categoryBooks = [];
-    categoryFavoriteBooks = [];
-    categoryOfferBooks = [];
-    categoryMostViewedBooks = [];
-    update();
+  void bookmarkBook(Book book) async {
+    try {
+      if (myBooks.any((element) => element.id == book.id)) {
+        myBooks.removeWhere((element) => element.id == book.id);
+      } else {
+        myBooks.add(book);
+      }
+      update();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int userId = prefs.getInt(AppConstants.userIdKey) ?? -1;
+      if (userId == -1) {
+        return;
+      }
+      Map<String, dynamic> response = await bookRepository.addNewFavoriteBook(
+          userId: userId, bookId: book.id);
+      if (response['status']) {
+        await getMyBooks();
+        update();
+      } //
+      else {
+        log(response['error']);
+      }
+    } catch (_) {
+      log('bookmark => no connection **************');
+      log(_.toString());
+    }
   }
 
   void sliderTapped(BookSlider slide) async {
@@ -307,12 +266,22 @@ class HomeController extends GetxController {
         Get.toNamed(
           Routes.singleBookScreen,
           arguments: {book, false},
+          parameters: {'tag': 'slider-${book.enName}'},
         );
       }
     } //
     else if (slide.model == 'cat') {
-      String catName =
-          categories.firstWhere((element) => element.id == slide.bookId).name;
+      List categories = [];
+      Map<String, dynamic> response = await bookRepository.getCategory();
+      if (response['status']) {
+        categories = response['cats'];
+      } //
+      else {
+        log(response['error']);
+      }
+      String catName = categories
+          .firstWhere((element) => element.id.toString() == slide.bookId)
+          .name;
       Get.toNamed(
         Routes.categoryScreen,
         parameters: {'catId': slide.bookId, 'catName': catName},
@@ -320,22 +289,6 @@ class HomeController extends GetxController {
     } //
     else {
       return;
-    }
-  }
-
-  Future<void> getTopSellsBooks() async {
-    try {
-      Map<String, dynamic> response = await bookRepository.topSellerBook();
-      if (response['status']) {
-        topSellsBooks.add(emptyBook);
-        topSellsBooks.addAll(response['books']);
-        update();
-      } //
-      else {
-        log(response['error']);
-      }
-    } catch (_) {
-      log('top sell => no connection **************');
     }
   }
 }

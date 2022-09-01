@@ -1,4 +1,3 @@
-import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -7,8 +6,7 @@ import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/routes/app_pages.dart';
 import 'package:gosheno/app/core/theme/app_theme.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-
-import 'app/modules/user/user_binding.dart';
+import 'package:gosheno/app/modules/user/user_binding.dart';
 
 void main() async {
   await JustAudioBackground.init(
@@ -21,10 +19,7 @@ void main() async {
     statusBarColor: kGreenAccentColor.withOpacity(0.6),
   ));
   runApp(
-    DevicePreview(
-      enabled: false,
-      builder: (context) => const MyApp(),
-    ),
+    const MyApp(),
   );
 }
 
@@ -36,8 +31,6 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Gosheno',
-      useInheritedMediaQuery: true,
-      builder: DevicePreview.appBuilder,
       locale: const Locale('fa', 'IR'),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -49,7 +42,7 @@ class MyApp extends StatelessWidget {
         Locale('en', ''),
       ],
       fallbackLocale: const Locale('en', 'US'),
-      initialRoute: Routes.loginScreen,
+      initialRoute: Routes.initial,
       initialBinding: UserBinding(),
       getPages: AppRoutes.pages,
       defaultTransition: Transition.rightToLeftWithFade,

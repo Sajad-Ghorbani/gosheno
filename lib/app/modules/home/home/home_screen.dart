@@ -3,11 +3,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:gosheno/app/data/models/category_model.dart';
 import 'package:gosheno/app/global_widgets/loading.dart';
 import 'package:gosheno/app/global_widgets/section_title.dart';
 import 'package:gosheno/app/core/theme/app_color.dart';
-import 'package:gosheno/app/core/theme/app_text_theme.dart';
 import 'package:gosheno/app/global_widgets/book_card.dart';
 import 'package:gosheno/app/modules/home/local_widget/wide_book_card.dart';
 import 'package:gosheno/app/modules/home/home_controller.dart';
@@ -41,7 +39,9 @@ class HomeScreen extends StatelessWidget {
                 floating: true,
                 snap: true,
                 leading: IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.toNamed(Routes.cartScreen);
+                  },
                   icon: const Iconify(
                     Ph.shopping_cart_simple,
                     color: kWhiteColor,
@@ -140,65 +140,10 @@ class HomeScreen extends StatelessWidget {
                         return BookCard(
                           books: controller.offersBooks,
                           tag: 'off',
-                          onBookmarkPressed: (bookId) {
-                            controller.bookmarkBook(bookId);
+                          onBookmarkPressed: (book) {
+                            controller.bookmarkBook(book);
                           },
                           myBooks: controller.myBooks,
-                        );
-                      },
-                    ),
-                    const SectionTitle(title: 'دسته بندی ها', showMore: false),
-                    GetBuilder<HomeController>(
-                      builder: (controller) {
-                        return SizedBox(
-                          height: 150,
-                          child: ListView.separated(
-                            padding: const EdgeInsets.all(10),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: controller.categories.length,
-                            itemBuilder: (context, index) {
-                              BookCategory cat = controller.categories[index];
-                              return Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color:
-                                      kLightGreenAccentColor.withOpacity(0.6),
-                                ),
-                                padding: const EdgeInsets.all(8),
-                                width: 150,
-                                child: InkWell(
-                                  onTap: () {
-                                    Get.toNamed(
-                                      Routes.categoryScreen,
-                                      parameters: {
-                                        'catId': cat.id,
-                                        'catName': cat.name,
-                                      },
-                                    );
-                                  },
-                                  child: Column(
-                                    children: [
-                                      CachedNetworkImage(
-                                        imageUrl: '${AppConstants.baseUrl}${cat.icon}',
-                                        width: 50,
-                                        height: 50,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        cat.name,
-                                        textAlign: TextAlign.center,
-                                        style: kBodyMedium,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                            separatorBuilder: (context, index) {
-                              return const SizedBox(width: 10);
-                            },
-                          ),
                         );
                       },
                     ),
@@ -207,8 +152,8 @@ class HomeScreen extends StatelessWidget {
                       tag: 'sell',
                       books: controller.topSellsBooks,
                       myBooks: controller.myBooks,
-                      onBookmarkPressed: (bookId) {
-                        controller.bookmarkBook(bookId);
+                      onBookmarkPressed: (book) {
+                        controller.bookmarkBook(book);
                       },
                     ),
                     const SizedBox(height: 10),
@@ -221,8 +166,8 @@ class HomeScreen extends StatelessWidget {
                         return BookCard(
                           books: controller.mostViewedBooks,
                           tag: 'most',
-                          onBookmarkPressed: (bookId) {
-                            controller.bookmarkBook(bookId);
+                          onBookmarkPressed: (book) {
+                            controller.bookmarkBook(book);
                           },
                           myBooks: controller.myBooks,
                         );
@@ -243,8 +188,8 @@ class HomeScreen extends StatelessWidget {
                             tag: 'women',
                             hasText: true,
                             text: 'کتاب هایی که از خانوم ها ملکه میسازد',
-                            onBookmarkPressed: (bookId) {
-                              controller.bookmarkBook(bookId);
+                            onBookmarkPressed: (book) {
+                              controller.bookmarkBook(book);
                             },
                             myBooks: controller.myBooks,
                           ),
@@ -261,8 +206,8 @@ class HomeScreen extends StatelessWidget {
                         return BookCard(
                           books: controller.newestBooks,
                           tag: 'new',
-                          onBookmarkPressed: (bookId) {
-                            controller.bookmarkBook(bookId);
+                          onBookmarkPressed: (book) {
+                            controller.bookmarkBook(book);
                           },
                           myBooks: controller.myBooks,
                         );
@@ -283,8 +228,8 @@ class HomeScreen extends StatelessWidget {
                             tag: 'manager',
                             hasText: true,
                             text: 'کتاب های مخصوص مدیران حرفه ای',
-                            onBookmarkPressed: (bookId) {
-                              controller.bookmarkBook(bookId);
+                            onBookmarkPressed: (book) {
+                              controller.bookmarkBook(book);
                             },
                             myBooks: controller.myBooks,
                           );
@@ -301,8 +246,8 @@ class HomeScreen extends StatelessWidget {
                         return BookCard(
                           books: controller.favoriteBooks,
                           tag: 'fav',
-                          onBookmarkPressed: (bookId) {
-                            controller.bookmarkBook(bookId);
+                          onBookmarkPressed: (book) {
+                            controller.bookmarkBook(book);
                           },
                           myBooks: controller.myBooks,
                         );

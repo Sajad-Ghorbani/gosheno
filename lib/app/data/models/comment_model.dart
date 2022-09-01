@@ -4,12 +4,12 @@ part 'comment_model.g.dart';
 
 @JsonSerializable()
 class BookComment{
-  String id;
+  int id;
   String text;
   String bookId;
   String rate;
   String stat;
-  String userId;
+  String uId;
   String time;
 
   BookComment({
@@ -18,7 +18,7 @@ class BookComment{
     required this.bookId,
     required this.rate,
     required this.stat,
-    required this.userId,
+    required this.uId,
     required this.time,
   });
 

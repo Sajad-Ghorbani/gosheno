@@ -61,10 +61,14 @@ class SignupScreen extends GetView<UserController> {
                         validator: (value) {
                           return controller.validateSignupForm(value, true);
                         },
+                        keyboardType: TextInputType.phone,
                         height: controller.phoneSignupTextFieldHeight.value,
                         prefixIcon: const Padding(
                           padding: EdgeInsets.all(10),
-                          child: Iconify(Ri.smartphone_line,color: kGreyColor,),
+                          child: Iconify(
+                            Ri.smartphone_line,
+                            color: kGreyColor,
+                          ),
                         ),
                       ),
                     ),
@@ -95,7 +99,16 @@ class SignupScreen extends GetView<UserController> {
                         ),
                         prefixIcon: const Padding(
                           padding: EdgeInsets.all(10.0),
-                          child: Iconify(Ph.password_bold,color: kGreyColor,),
+                          child: Iconify(
+                            Ph.password_bold,
+                            color: kGreyColor,
+                          ),
+                        ),
+                        toolbarOptions: const ToolbarOptions(
+                          copy: false,
+                          cut: false,
+                          paste: false,
+                          selectAll: false,
                         ),
                       ),
                     ),
@@ -126,7 +139,16 @@ class SignupScreen extends GetView<UserController> {
                         ),
                         prefixIcon: const Padding(
                           padding: EdgeInsets.all(10.0),
-                          child: Iconify(Ph.password_bold,color: kGreyColor,),
+                          child: Iconify(
+                            Ph.password_bold,
+                            color: kGreyColor,
+                          ),
+                        ),
+                        toolbarOptions: const ToolbarOptions(
+                          copy: false,
+                          cut: false,
+                          paste: false,
+                          selectAll: false,
                         ),
                       ),
                     ),
@@ -313,7 +335,7 @@ class SignupScreen extends GetView<UserController> {
                         CircleButtonWidget(
                           color: kDarkBlueColor,
                           onTap: () {
-                            controller.googleSignIn(true);
+                            controller.googleSignIn(context);
                           },
                           height: 35,
                           width: Get.width * 0.35,

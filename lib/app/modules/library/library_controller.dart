@@ -3,14 +3,11 @@ import 'package:gosheno/app/core/utils/app_constants.dart';
 import 'package:gosheno/app/data/models/book_model.dart';
 import 'package:gosheno/app/data/provider/book_api_provider.dart';
 import 'package:gosheno/app/data/repository/book_repository.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryController extends GetxController {
   final BookRepository _bookRepository = BookRepository(
-    bookApiClient: BookApiClient(
-      httpClient: http.Client(),
-    ),
+    bookApiClient: BookApiClient(),
   );
 
   int selectedIndex = 0;
@@ -28,16 +25,11 @@ class LibraryController extends GetxController {
     init();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
   init() async {
     showLoading = true;
     update();
     await getUserId();
-    // await getBuyBooks();
+    await getBuyBooks();
     await getActiveBooks();
     await getFavoriteBooks();
     await getAllBooks();
@@ -71,7 +63,7 @@ class LibraryController extends GetxController {
     }
   }
 
-  Future getAllBooks()async {
+  Future getAllBooks() async {
     allBooks.addAll(buyBooks);
     if (allBooks.isNotEmpty) {
       List<Book> list = [];
@@ -80,6 +72,7 @@ class LibraryController extends GetxController {
             ? null
             : list.add(book);
       }
+      allBooks.addAll(list);
     } //
     else {
       allBooks.addAll(activeBooks);

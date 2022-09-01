@@ -17,6 +17,7 @@ class CustomTextField extends StatelessWidget {
     this.autofocus = false,
     this.textAlign = TextAlign.center,
     this.keyboardType = TextInputType.text,
+    this.toolbarOptions,
   }) : super(key: key);
   final String labelText;
   final TextEditingController controller;
@@ -32,6 +33,7 @@ class CustomTextField extends StatelessWidget {
   final bool autofocus;
   final TextAlign textAlign;
   final TextInputType keyboardType;
+  final ToolbarOptions? toolbarOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +50,7 @@ class CustomTextField extends StatelessWidget {
           prefixIcon: prefixIcon,
         ),
         validator: validator,
+        toolbarOptions: toolbarOptions,
         textAlign: textAlign,
         onChanged: onChanged,
         obscureText: obscureText,

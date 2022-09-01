@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/data/models/book_model.dart';
 import 'package:gosheno/app/modules/home/home_controller.dart';
-import 'package:gosheno/app/modules/home/local_widget/category_book.dart';
+import 'package:gosheno/app/global_widgets/category_book.dart';
 
 class AllBookScreen extends GetView<HomeController> {
   const AllBookScreen({Key? key}) : super(key: key);

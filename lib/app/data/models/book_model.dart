@@ -4,25 +4,27 @@ part 'book_model.g.dart';
 
 @JsonSerializable()
 class Book {
-  String id;
+  int id;
   String name;
   String enName;
   String author;
   String? content;
   String? bookLink;
   String? soundLink;
-  String soundDemo;
+  String? soundDemo;
   String short;
   String about;
   String cat;
   String price;
-  String sPrice;
+  String? sPrice;
   String pic;
   String authorContent;
-  String ages;
-  String tId;
+  String? tId;
   String shows;
   String rate;
+  String? admin;
+  String? createdAt;
+  String? updatedAt;
 
   Book({
     required this.id,
@@ -32,31 +34,33 @@ class Book {
     this.content,
     this.bookLink,
     this.soundLink,
-    required this.soundDemo,
+    this.soundDemo,
     required this.short,
     required this.about,
     required this.cat,
     required this.price,
-    required this.sPrice,
+    this.sPrice,
     required this.pic,
     required this.authorContent,
-    required this.ages,
-    required this.tId,
+    this.tId,
     required this.shows,
     required this.rate,
+    this.admin,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 
   Map<String, dynamic> toJson() => _$BookToJson(this);
 
-  int offCount() {
-    if (sPrice == '0') {
+  int get offCount {
+    if (sPrice == null || sPrice == '0' || sPrice == '' || sPrice == '0.0') {
       return 0;
     } //
     else {
       int p = int.parse(price);
-      int sP = int.parse(sPrice);
+      int sP = int.parse(sPrice!);
       int off = 100 - ((sP * 100) ~/ p);
       return off;
     }
@@ -64,5 +68,5 @@ class Book {
 
   @override
   String toString() =>
-      'Book(id: $id, name: $name, enName: $enName, author: $author, content: $content, bookLink: $bookLink, soundLink: $soundLink, short: $short, about: $about, cat: $cat, pic: $pic, authorContent: $authorContent, ages: $ages, tId: $tId, shows: $shows, rate: $rate)';
+      'Book(id: $id, name: $name, enName: $enName, author: $author, content: $content, bookLink: $bookLink, soundLink: $soundLink, short: $short, about: $about, cat: $cat, pic: $pic, authorContent: $authorContent, tId: $tId, shows: $shows, rate: $rate)';
 }

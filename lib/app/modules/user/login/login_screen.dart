@@ -29,15 +29,19 @@ class LoginScreen extends GetView<UserController> {
                   child: Column(
                     children: [
                       const SizedBox(height: 10),
-                      Image.asset(
-                        'assets/images/gosheno-logo4.png',
-                        height: Get.height * 0.3,
+                      Hero(
+                        tag: 'logo',
+                        child: Image.asset(
+                          'assets/images/gosheno-logo4.png',
+                          height: Get.height * 0.3,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Obx(
                         () => CustomTextField(
-                          labelText: 'موبایل یا ایمیل خود را وارد کنید',
+                          labelText: 'موبایل خود را وارد کنید',
                           controller: controller.loginPhoneController,
+                          keyboardType: TextInputType.phone,
                           validator: (value) {
                             return controller.validateLoginForm(value, false);
                           },
@@ -184,7 +188,7 @@ class LoginScreen extends GetView<UserController> {
                           CircleButtonWidget(
                             color: kDarkBlueColor,
                             onTap: () {
-                              controller.googleSignIn(false);
+                              controller.googleSignIn(context);
                             },
                             height: 35,
                             width: Get.width * 0.35,
@@ -197,7 +201,7 @@ class LoginScreen extends GetView<UserController> {
                                   color: kWhiteColor,
                                 ),
                                 Text(
-                                  'ثبت نام با گوگل',
+                                  'ورود با گوگل',
                                   style: TextStyle(
                                     color: Theme.of(context)
                                         .colorScheme

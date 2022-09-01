@@ -8,6 +8,7 @@ import 'package:gosheno/app/routes/app_pages.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/fluent.dart';
 import 'package:iconify_flutter/icons/uim.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
 
 import '../core/theme/app_color.dart';
 import '../core/theme/app_text_theme.dart';
@@ -33,13 +34,13 @@ class BookCard extends StatelessWidget {
   /// If the return value is false, the book is not bookmarked.
   /// If the return value is true, the book is bookmarked.
   /// The default value is false.
-  final ValueChanged<String> onBookmarkPressed;
+  final ValueChanged<Book> onBookmarkPressed;
   final List<Book> myBooks;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 320,
+      height: 355,
       child: ListView.separated(
         itemCount: books.length > 8 ? 8 : books.length,
         padding: const EdgeInsets.all(10),
@@ -47,8 +48,7 @@ class BookCard extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         itemBuilder: (context, index) {
           Book book = books[index];
-          bool isBookmarked = myBooks
-              .any((myBook) => myBook.id == book.id);
+          bool isBookmarked = myBooks.any((myBook) => myBook.id == book.id);
           if (hasText) {
             if (index == 0) {
               return SizedBox(
@@ -99,7 +99,7 @@ class BookCard extends StatelessWidget {
                             ),
                           ),
                           Visibility(
-                            visible: book.offCount() > 0,
+                            visible: book.offCount > 0,
                             child: Positioned(
                               right: 0,
                               child: Container(
@@ -109,7 +109,7 @@ class BookCard extends StatelessWidget {
                                   color: kGreenAccentColor,
                                 ),
                                 child: Text(
-                                  '${book.offCount()}%',
+                                  '${book.offCount}%',
                                   style: kBodyText.copyWith(
                                     color: kWhiteColor,
                                     fontSize: 10,
@@ -175,6 +175,32 @@ class BookCard extends StatelessWidget {
                         direction: Axis.horizontal,
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
+                          '${book.price.seRagham()} تومان',
+                          style: kBodyMedium.copyWith(
+                            color:
+                                book.offCount > 0 ? kGreyColor : kDarkRedColor,
+                            decoration: book.offCount > 0
+                                ? TextDecoration.lineThrough
+                                : null,
+                            fontSize: 12,
+                          ),
+                        ),
+                        Visibility(
+                          visible: book.offCount > 0,
+                          child: Text(
+                            ' / ${book.sPrice?.seRagham()} تومان',
+                            style: kBodyMedium.copyWith(
+                              color: kDarkRedColor,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -190,7 +216,7 @@ class BookCard extends StatelessWidget {
                       Get.toNamed(
                         Routes.singleBookScreen,
                         parameters: {'tag': '$tag-${book.enName}'},
-                        arguments: {book,isBookmarked},
+                        arguments: {book, isBookmarked},
                       );
                     },
                     borderRadius: const BorderRadius.all(
@@ -207,7 +233,7 @@ class BookCard extends StatelessWidget {
                       ? const Iconify(Fluent.bookmark_28_filled)
                       : const Iconify(Fluent.bookmark_28_regular),
                   onPressed: () {
-                    onBookmarkPressed(book.id);
+                    onBookmarkPressed(book);
                   },
                   padding: const EdgeInsets.all(0),
                 ),

@@ -10,7 +10,6 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - status: true if success, false otherwise.
   /// - cats: a list of [BookCategory] if success, null otherwise.
-  /// - error: a string if failed, null otherwise.
   Future getCategory() async {
     return await bookApiClient.getCategory();
   }
@@ -52,7 +51,7 @@ class BookRepository {
   /// 'books': List of books,
   /// }
   /// ```
-  Future getFavoriteBook({String? catId}) async {
+  Future getFavoriteBook({required int catId}) async {
     return await bookApiClient.getFavoriteBook(catId);
   }
 
@@ -112,8 +111,8 @@ class BookRepository {
   /// 'book': book,
   /// }
   /// ```
-  Future getBookInfo({required int bookId}) async {
-    return await bookApiClient.getBookInfo(bookId);
+  Future getBookInfo({required int bookId,required int userId}) async {
+    return await bookApiClient.getBookInfo(bookId,userId);
   }
 
   /// This method is used to get simple info of book.
@@ -123,7 +122,6 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - status: true if success, false otherwise.
   /// - book: a [Book] if success, null otherwise.
-  /// - error: a string if failed, null otherwise.
   Future getSimpleBookInfo({required int bookId}) async {
     return await bookApiClient.getSimpleBookInfo(bookId);
   }
@@ -149,8 +147,7 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - status: true if success, false otherwise.
   /// - books: a list of [Book] if success, null otherwise.
-  /// - error: a string if failed, null otherwise.
-  Future getOffersBook({String? catId}) async {
+  Future getOffersBook({required int catId}) async {
     return await bookApiClient.getOffersBook(catId);
   }
 
@@ -161,8 +158,7 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - status: true if success, false otherwise.
   /// - books: a list of [Book] if success, null otherwise.
-  /// - error: a string if failed, null otherwise.
-  Future getMostVisitedBook({String? catId}) async {
+  Future getMostVisitedBook({int? catId}) async {
     return await bookApiClient.getMostVisitedBook(catId);
   }
 
@@ -185,7 +181,6 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if get user books successfully, otherwise `false`.
   /// - `books`: `List<Book>` if get user books successfully, otherwise `null`.
-  /// - `error`: `String` if get user books unsuccessfully, otherwise `null`.
   Future getMyBooks({required int id}) async {
     return await bookApiClient.getMyBooks(id);
   }
@@ -195,9 +190,8 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if get top seller books successfully, otherwise `false`.
   /// - `books`: `List<Book>` if get top seller books successfully, otherwise `null`.
-  /// - `error`: `String` if get top seller books unsuccessfully, otherwise `null`.
-  Future topSellerBook() async {
-    return await bookApiClient.topSellerBook();
+  Future topSellerBook({required int catId}) async {
+    return await bookApiClient.topSellerBook(catId);
   }
 
   /// This method is used to get top sliders.
@@ -205,7 +199,6 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if get top sliders successfully, otherwise `false`.
   /// - `sliders`: `List<Slider>` if get top sliders successfully, otherwise `null`.
-  /// - `error`: `String` if get top sliders unsuccessfully, otherwise `null`.
   Future getSliders() async {
     return await bookApiClient.getSliders();
   }
@@ -217,7 +210,6 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if get user books successfully, otherwise `false`.
   /// - `books`: `List<Book>` if get user books successfully, otherwise `null`.
-  /// - `error`: `String` if get user books unsuccessfully, otherwise `null`.
   Future getActiveBooks({required int userId}) async {
     return await bookApiClient.getActiveBooks(userId);
   }
@@ -229,8 +221,19 @@ class BookRepository {
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if get favorite books successfully, otherwise `false`.
   /// - `books`: `List<Book>` if get favorite books successfully, otherwise `null`.
-  /// - `error`: `String` if get favorite books unsuccessfully, otherwise `null`.
   Future getMyFavoriteBooks({required int userId}) async {
     return await bookApiClient.getMyFavoriteBooks(userId);
+  }
+
+  /// This method is used to add book to active books.
+///
+/// [bookId] is the id of book.
+/// [userId] is the id of user.
+///
+/// Return a [Future] that contains a [Map] with the following keys:
+/// - `status`: `true` if add book to active books successfully, otherwise `false`.
+///
+  Future addActiveBook({required int userId, required int bookId,required String bookName}) async {
+    return await bookApiClient.addActiveBook(userId, bookId,bookName);
   }
 }

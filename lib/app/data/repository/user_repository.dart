@@ -14,7 +14,7 @@ class UserRepository {
   ///
   /// Returns a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if the user is registered successfully, otherwise `false`.
-  /// - `id`: `int` if the user is registered successfully, otherwise `null`.
+  /// - `user`: `User` if the user is registered successfully, otherwise `null`.
   /// - `error`: `String` if the user is not registered successfully, otherwise `null`.
   Future registerUser({
     required String name,
@@ -33,14 +33,13 @@ class UserRepository {
   ///
   /// Returns a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if the user is logged in successfully, otherwise `false`.
-  /// - `id`: `int` if the user is logged in successfully, otherwise `null`.
+  /// - `user`: `User` if the user is logged in successfully, otherwise `null`.
   /// - `error`: `String` if the user is not logged in successfully, otherwise `null`.
   Future loginUser({
     required String phoneNumber,
     required String pass,
-    required String email,
   }) async {
-    return await apiClient.loginUser(phoneNumber, pass, email);
+    return await apiClient.loginUser(phoneNumber, pass);
   }
 
   /// This method is used to send sms.
@@ -62,7 +61,6 @@ class UserRepository {
   /// Returns a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if get user information successfully, otherwise `false`.
   /// - `user`: `User` if get user information successfully, otherwise `null`.
-  /// - `error`: `String` if get user information unsuccessfully, otherwise `null`.
   Future getUserInfo({required int id}) async {
     return await apiClient.getUser(id);
   }
@@ -73,8 +71,7 @@ class UserRepository {
   ///
   /// Returns a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if check user subscribe successfully, otherwise `false`.
-  /// - `subscribe`: `double` if check user subscribe successfully, otherwise `null`.
-  /// - `error`: `String` if check user subscribe unsuccessfully, otherwise `null`.
+  /// - `subscribe`: `int` if check user subscribe successfully, otherwise `null`.
   Future checkUserSubscribe({required int id}) async {
     return await apiClient.checkSubscribe(id);
   }
@@ -90,6 +87,7 @@ class UserRepository {
   ///
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if edit user successfully, otherwise `false`.
+  /// - `message`: `String` if edit user successfully, otherwise `null`.
   /// - `error`: `String` if edit user unsuccessfully, otherwise `null`.
   Future editUserInfo({
     required int id,
@@ -103,25 +101,13 @@ class UserRepository {
         id, name, phoneNumber, email, password, sex);
   }
 
-  /// This method is used to get books purchased by the user.
-  ///
-  /// [id] is the id of user.
-  ///
-  /// Return a [Future] that contains a [Map] with the following keys:
-  /// - `status`: `true` if get user books successfully, otherwise `false`.
-  /// - `books`: `List<Book>` if get user books successfully, otherwise `null`.
-  /// - `error`: `String` if get user books unsuccessfully, otherwise `null`.
-  Future getBuyBooks({required int id}) async {
-    return await apiClient.getBuyBooks(id);
-  }
-
   /// This method is used to reset password.
   ///
   /// [phoneNumber] is the phone number of user.
   ///
   /// Return a [Future] that contains a [Map] with the following keys:
   /// - `status`: `true` if reset password successfully, otherwise `false`.
-  /// - `token`: `String` if reset password successfully, otherwise `null`.
+  /// - `code`: `String` if reset password successfully, otherwise `null`.
   /// - `error`: `String` if reset password unsuccessfully, otherwise `null`.
   Future resetPassword({required String phoneNumber}) async {
     return await apiClient.resetPassword(phoneNumber);
@@ -138,13 +124,36 @@ class UserRepository {
     return await apiClient.confirmPassword(phoneNumber);
   }
 
-  /// This method is used to get copuns.
+  /// This method is used to get coupons.
   ///
   /// Return a [Future] that contains a [Map] with the following keys:
-  /// - `status`: `true` if get copuns successfully, otherwise `false`.
-  /// - `copuns`: `List<Copun>` if get copuns successfully, otherwise `null`.
-  /// - `error`: `String` if get copuns unsuccessfully, otherwise `null`.
-  Future getCopuns() async {
-    return await apiClient.getCopuns();
+  /// - `status`: `true` if get coupons successfully, otherwise `false`.
+  /// - `coupons`: `List<Coupon>` if get coupons successfully, otherwise `null`.
+  /// - `error`: `String` if get coupons unsuccessfully, otherwise `null`.
+  Future getCoupons() async {
+    return await apiClient.getCoupons();
+  }
+
+  /// This method is used to get user activities.
+  ///
+  /// [id] is the id of user.
+  ///
+  /// Return a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if get user activities successfully, otherwise `false`.
+  /// - `activities`: `List<Activity>` if get user activities successfully, otherwise `null`.
+  /// - `error`: `String` if get user activities unsuccessfully, otherwise `null`.
+  Future getUserActivities({required int id}) async {
+    return await apiClient.getUserActivities(id);
+  }
+
+  /// This method is used to check user email exist.
+  ///
+  /// [email] is the email of user.
+  ///
+  /// Returns a [Future] that contains a [Map] with the following keys:
+  /// - `status`: `true` if check user email exist successfully, otherwise `false`.
+  /// - `id`: `int` if check user email exist successfully, otherwise `null`.
+  Future checkUserEmailExist({required String email}) async {
+    return await apiClient.existUserEmail(email);
   }
 }

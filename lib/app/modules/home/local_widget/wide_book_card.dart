@@ -24,7 +24,7 @@ class WideBookCard extends StatelessWidget {
   }) : super(key: key);
   final VoidCallback onBuyTap;
   final String tag;
-  final ValueChanged<String> onBookmarkPressed;
+  final ValueChanged<Book> onBookmarkPressed;
   final List<Book> myBooks;
   final List<Book> books;
 
@@ -78,7 +78,7 @@ class WideBookCard extends StatelessWidget {
                             ),
                           ),
                           Visibility(
-                            visible: book.offCount() > 0,
+                            visible: book.offCount > 0,
                             child: Positioned(
                               right: 0,
                               child: Container(
@@ -88,7 +88,7 @@ class WideBookCard extends StatelessWidget {
                                   color: kGreenAccentColor,
                                 ),
                                 child: Text(
-                                  '${book.offCount()}%',
+                                  '${book.offCount}%',
                                   style: kBodyText.copyWith(
                                     color: kWhiteColor,
                                     fontSize: 10,
@@ -135,24 +135,25 @@ class WideBookCard extends StatelessWidget {
                           const SizedBox(height: 10),
                           Row(
                             children: [
+                              Text(
+                                '${book.price.seRagham()} تومان',
+                                style: TextStyle(
+                                  color:
+                                  book.offCount > 0 ? kGreyColor : kDarkRedColor,
+                                  decoration: book.offCount > 0
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  fontSize: 12,
+                                ),
+                              ),
                               Visibility(
-                                visible: book.offCount() > 0,
+                                visible: book.offCount > 0,
                                 child: Text(
-                                  '${book.sPrice.seRagham()} تومان / ',
+                                  ' / ${book.sPrice?.seRagham()} تومان',
                                   style: kBodyText.copyWith(
                                     color: kDarkRedColor,
                                     fontSize: 12,
                                   ),
-                                ),
-                              ),
-                              Text(
-                                '${book.price.seRagham()} تومان',
-                                style: TextStyle(
-                                  color: kDarkRedColor,
-                                  fontSize: 12,
-                                  decoration: book.offCount() > 0
-                                      ? TextDecoration.lineThrough
-                                      : null,
                                 ),
                               ),
                             ],
@@ -207,7 +208,7 @@ class WideBookCard extends StatelessWidget {
                       ? const Iconify(Fluent.bookmark_28_filled)
                       : const Iconify(Fluent.bookmark_28_regular),
                   onPressed: () {
-                    onBookmarkPressed(book.id);
+                    onBookmarkPressed(book);
                   },
                   padding: const EdgeInsets.all(0),
                 ),

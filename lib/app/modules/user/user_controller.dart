@@ -2,10 +2,14 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as math;
 
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/core/utils/app_constants.dart';
+import 'package:gosheno/app/data/repository/book_repository.dart';
 import 'package:gosheno/app/data/repository/user_repository.dart';
 import 'package:gosheno/app/global_widgets/custom_button_widget.dart';
 import 'package:gosheno/app/global_widgets/custom_text_field.dart';
@@ -16,8 +20,9 @@ import 'package:google_sign_in/google_sign_in.dart' as sign_in;
 
 class UserController extends GetxController {
   final UserRepository userRepository;
+  final BookRepository bookRepository;
 
-  UserController({required this.userRepository});
+  UserController({required this.bookRepository, required this.userRepository});
 
   TextEditingController signupNameController = TextEditingController();
   TextEditingController signupPhoneController = TextEditingController();
@@ -51,16 +56,25 @@ class UserController extends GetxController {
 
   String verifyCode = '-1';
 
+  final RxString _connectionStatus = '-1'.obs;
+  final Rx<Connectivity> _connectivity = Connectivity().obs;
+  Rx<ConnectivityResult> result = ConnectivityResult.none.obs;
+
   @override
-  onInit() {
+  void onInit() {
     super.onInit();
     timer = Timer(const Duration(), () {});
-    checkUserLoggedIn();
+    initConnectivity();
+    ever(result, (_) {
+      _connectivity.value.onConnectivityChanged.listen(_updateConnectionStatus);
+    });
   }
 
   @override
   onClose() {
     super.onClose();
+    result.close();
+    _connectivity.close();
     signupNameController.dispose();
     signupPhoneController.dispose();
     signupPasswordController.dispose();
@@ -71,11 +85,54 @@ class UserController extends GetxController {
     timer.cancel();
   }
 
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    switch (result) {
+      case ConnectivityResult.wifi:
+        _connectionStatus.value = 'wifi net';
+        break;
+      case ConnectivityResult.mobile:
+        _connectionStatus.value = 'mobile net';
+        break;
+      case ConnectivityResult.none:
+        _connectionStatus.value = '-1';
+        Get.snackbar(
+          'اینترنت متصل نمی باشد.',
+          'لطفا داده ها یا wifi را روشن کنید.',
+          snackStyle: SnackStyle.FLOATING,
+          snackPosition: SnackPosition.TOP,
+        );
+        break;
+      default:
+        _connectionStatus.value = 'Failed to get connectivity.';
+        break;
+    }
+    if (_connectionStatus.value != '-1') {
+      Future.delayed(const Duration(seconds: 5), () async {
+        checkUserLoggedIn();
+      });
+    }
+  }
+
+  Future<void> initConnectivity() async {
+    try {
+      result.value = await _connectivity.value.checkConnectivity();
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+    }
+
+    return _updateConnectionStatus(result.value);
+  }
+
   checkUserLoggedIn() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     bool userLogged = pref.getBool(AppConstants.loggedInKey) ?? false;
     if (userLogged) {
       Get.offNamed(Routes.mainScreen);
+    } //
+    else {
+      Get.offNamed(Routes.loginScreen);
     }
   }
 
@@ -126,9 +183,8 @@ class UserController extends GetxController {
       }
       if (response['status']) {
         SharedPreferences pref = await SharedPreferences.getInstance();
-        pref.setInt(AppConstants.userIdKey, response['id']);
+        pref.setInt(AppConstants.userIdKey, response['user'].id);
         pref.setBool(AppConstants.loggedInKey, true);
-        pref.setString(AppConstants.userPasswordKey, password);
         showLoading = false;
         update();
         Get.snackbar('ثبت نام', 'ثبت نام با موفقیت انجام شد');
@@ -138,34 +194,9 @@ class UserController extends GetxController {
         );
       } //
       else {
-        int errorCode = int.parse(response['error']);
-        if (errorCode == 110) {
-          showLoading = false;
-          update();
-          Get.snackbar('ثبت نام', 'اطلاعات وارد شده صحیح نمی باشد');
-        } //
-        else if (errorCode == 111 || errorCode == 106) {
-          showLoading = false;
-          update();
-          Get.snackbar(
-              'ثبت نام', 'مشکلی سمت سرور رخ داده، لطفا دوباره امتحان کنید.');
-        } //
-        else if (errorCode == 114) {
-          showLoading = false;
-          update();
-          Get.snackbar(
-              'ثبت نام', 'شما قبلا با این شماره تلفن ثبت نام کرده اید.');
-        } //
-        else if (errorCode == 115) {
-          showLoading = false;
-          update();
-          Get.snackbar('ثبت نام', 'شما قبلا با این ایمیل ثبت نام کرده اید.');
-        } //
-        else if (errorCode == 116) {
-          showLoading = false;
-          update();
-          Get.snackbar('ثبت نام', 'شماره تلفن وارد نشده است');
-        }
+        showLoading = false;
+        update();
+        Get.snackbar('ثبت نام', response['error'][0]);
       }
     } //
     catch (_) {
@@ -175,65 +206,46 @@ class UserController extends GetxController {
     }
   }
 
-  loginUser(context, {String phoneOrEmail = '-1', String pass = '-1'}) async {
+  loginUser(context) async {
     try {
-      String phoneNumberOrEmail = phoneOrEmail == '-1'
-          ? loginPhoneController.text.trim()
-          : phoneOrEmail;
-      String password =
-          pass == '-1' ? loginPasswordController.text.trim() : pass;
+      String phoneNumber = loginPhoneController.text.trim();
+      String password = loginPasswordController.text.trim();
       Map<String, dynamic> response = {};
       FocusScope.of(context).unfocus();
-      if (phoneOrEmail == '-1') {
-        if (!loginFormKey.currentState!.validate()) {
-          return;
-        }
-      }
-      if (phoneNumberOrEmail.isEmail) {
-        showLoading = true;
-        update();
-        response = await userRepository.loginUser(
-          email: phoneNumberOrEmail,
-          pass: password,
-          phoneNumber: '',
-        );
-      } //
-      else if (phoneNumberOrEmail.isValidIranianMobileNumber()) {
-        showLoading = true;
-        update();
-        response = await userRepository.loginUser(
-          email: '',
-          pass: password,
-          phoneNumber: phoneNumberOrEmail,
-        );
-      } //
-      else {
-        Get.snackbar('خطا', 'ایمیل یا شماره تماس وارد شده صحیح نمی باشد.');
+      if (!loginFormKey.currentState!.validate()) {
         return;
       }
+      showLoading = true;
+      update();
+      response = await userRepository.loginUser(
+        phoneNumber: phoneNumber,
+        pass: password,
+      );
       if (response['status']) {
         SharedPreferences pref = await SharedPreferences.getInstance();
-        pref.setInt(AppConstants.userIdKey, response['id']);
+        pref.setInt(AppConstants.userIdKey, response['user'].id);
         pref.setBool(AppConstants.loggedInKey, true);
-        pref.setString(AppConstants.userPasswordKey, password);
         Get.snackbar('ورود', 'ورود با موفقیت انجام شد');
         showLoading = false;
+        loginPhoneController.clear();
+        loginPasswordController.clear();
         update();
         Get.offAllNamed(Routes.mainScreen);
       } //
       else {
         showLoading = false;
         update();
-        int errorCode = response['error'];
-        if (errorCode == 110) {
-          Get.snackbar('ورود', 'اطلاعات وارد شده صحیح نمی باشد');
-        }
+        Get.snackbar('ورود', response['error']);
       }
     } //
-    catch (_) {}
+    catch (_) {
+      showLoading = false;
+      update();
+      log(_.toString());
+    }
   }
 
-  googleSignIn(bool login) async {
+  googleSignIn(context) async {
     try {
       showLoading = true;
       update();
@@ -248,23 +260,28 @@ class UserController extends GetxController {
         update();
         return null;
       }
-      if (login) {
+      final Map<String, dynamic> response =
+          await userRepository.checkUserEmailExist(email: account!.email);
+      if (response['status']) {
         SharedPreferences pref = await SharedPreferences.getInstance();
-        String? pass = pref.getString(AppConstants.userPasswordKey);
-        loginUser(loginFormKey.currentContext,
-            phoneOrEmail: account!.email, pass: pass!);
+        pref.setInt(AppConstants.userIdKey, response['id']);
+        pref.setBool(AppConstants.loggedInKey, true);
+        showLoading = false;
+        loginPhoneController.clear();
+        loginPasswordController.clear();
+        update();
+        Get.snackbar('ورود', 'ورود با موفقیت انجام شد');
+        Get.offAllNamed(Routes.mainScreen);
       } //
       else {
         String pass = generatePassword();
-        String? userName = account!.displayName;
-        if (userName != null) {
-          registerUser(signupFormKey.currentContext,
-              userName: userName, pass: pass, email: account.email);
-        } //
-        else {
-          registerUser(signupFormKey.currentContext,
-              userName: account.email, pass: pass, email: account.email);
-        }
+        String userName = account.displayName ?? account.email;
+        registerUser(
+          context,
+          userName: userName,
+          email: account.email,
+          pass: pass,
+        );
       }
     } catch (e) {
       showLoading = false;
@@ -309,6 +326,10 @@ class UserController extends GetxController {
       if (value == null || value.isEmpty) {
         phoneTextFieldHeight.value = 67;
         return 'الزامی، نمی تواند خالی باشد.';
+      } //
+      else if (!value.isValidIranianMobileNumber()) {
+        phoneTextFieldHeight.value = 67;
+        return 'شماره تماس وارد شده صحیح نمی باشد.';
       }
       phoneTextFieldHeight.value = 45;
       return null;
@@ -339,10 +360,10 @@ class UserController extends GetxController {
   }
 
   sendSms(bool isResend, context) async {
-    showLoading = true;
-    update();
     FocusScope.of(context).unfocus();
     if (signupFormKey.currentState!.validate() && activeButton.value) {
+      showLoading = true;
+      update();
       startTimer();
       verifyCode = generatePassword(isSpecial: false, letter: false, length: 6);
       bool status = await userRepository.sendSms(
@@ -452,6 +473,7 @@ class UserController extends GetxController {
     if (response['status']) {
       showLoading = false;
       update();
+      startTimer();
       Get.defaultDialog(
         title: 'کد فعالسازی',
         content: Column(
@@ -473,11 +495,17 @@ class UserController extends GetxController {
               children: [
                 GestureDetector(
                   onTap: () {
-                    resendTime.value == 60
-                        ? resendCode(phone)
-                        : null;
+                    resendTime.value == 60 ? resendCode(phone) : null;
                   },
-                  child: const Text('ارسال مجدد کد'),
+                  child: Obx(
+                    () => Text(
+                      'ارسال مجدد کد',
+                      style: TextStyle(
+                        color:
+                            resendTime.value == 60 ? kBlackColor : kGreyColor,
+                      ),
+                    ),
+                  ),
                 ),
                 Container(
                   decoration: const BoxDecoration(
@@ -500,7 +528,7 @@ class UserController extends GetxController {
         ),
         confirm: CustomButtonWidget(
           onTap: () {
-            confirmPassword(phone, response['token'], context);
+            confirmPassword(phone, response['code'], context);
           },
           color: kGreenAccentColor,
           child: const Text('تایید'),
@@ -540,15 +568,15 @@ class UserController extends GetxController {
     }
   }
 
-  resendCode(String phone)async {
+  resendCode(String phone) async {
     startTimer();
     var response = await userRepository.resetPassword(
       phoneNumber: phone,
     );
-    if(response['status']){
+    if (response['status']) {
       Get.snackbar('کد فعالسازی', 'کد فعالسازی برای شما ارسال شد.');
-    }//
-    else{
+    } //
+    else {
       Get.snackbar('خطا', 'خطایی رخ داده است، لطفا دوباره تلاش کنید.');
     }
   }

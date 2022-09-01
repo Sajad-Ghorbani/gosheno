@@ -4,14 +4,16 @@ part 'category_model.g.dart';
 
 @JsonSerializable()
 class BookCategory {
-  final String id;
+  final int id;
   final String name;
   final String icon;
+  final String slug;
 
   BookCategory({
     required this.id,
     required this.name,
     required this.icon,
+    required this.slug,
   });
 
   factory BookCategory.fromJson(Map<String, dynamic> json) => _$BookCategoryFromJson(json);

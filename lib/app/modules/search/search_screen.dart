@@ -4,7 +4,7 @@ import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/data/models/book_model.dart';
 import 'package:gosheno/app/global_widgets/custom_text_field.dart';
 import 'package:gosheno/app/modules/home/home_controller.dart';
-import 'package:gosheno/app/modules/home/local_widget/category_book.dart';
+import 'package:gosheno/app/global_widgets/category_book.dart';
 import 'package:gosheno/app/modules/search/search_controller.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ep.dart';

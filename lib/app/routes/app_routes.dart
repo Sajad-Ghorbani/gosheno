@@ -11,4 +11,10 @@ abstract class Routes{
   static const String audioPlayerScreen = '/audioPlayer';
   static const String categoryScreen = '/category';
   static const String allBookScreen = '/allBook';
+  static const String paymentScreen = '/payment';
+  static const String cartScreen = '/cart';
+  static const String activityScreen = '/activity';
+  static const String settingScreen = '/setting';
+  static const String couponScreen = '/coupon';
+  static const String subscribeScreen = '/subscribe';
 }

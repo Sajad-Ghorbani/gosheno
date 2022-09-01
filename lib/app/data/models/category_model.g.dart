@@ -7,9 +7,10 @@ part of 'category_model.dart';
 // **************************************************************************
 
 BookCategory _$BookCategoryFromJson(Map<String, dynamic> json) => BookCategory(
-      id: json['id'] as String,
+      id: json['id'] as int,
       name: json['name'] as String,
       icon: json['icon'] as String,
+      slug: json['slug'] as String,
     );
 
 Map<String, dynamic> _$BookCategoryToJson(BookCategory instance) =>
@@ -17,4 +18,5 @@ Map<String, dynamic> _$BookCategoryToJson(BookCategory instance) =>
       'id': instance.id,
       'name': instance.name,
       'icon': instance.icon,
+      'slug': instance.slug,
     };

@@ -55,6 +55,20 @@ class AudioPlayerScreen extends GetView<AudioPlayerController> {
                       : kBlackColor,
                 ),
                 actions: [
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(vertical: 10),
+                  //   child: CircleButtonWidget(
+                  //     color: kDarkRedColor,
+                  //     onTap: () {
+                  //       controller.downloadBookPdf();
+                  //     },
+                  //     height: 35,
+                  //     child: const Text(
+                  //       'دانلود نسخه الکترونیکی',
+                  //       style: TextStyle(color: kWhiteGreyColor, fontSize: 12),
+                  //     ),
+                  //   ),
+                  // ),
                   IconButton(
                     onPressed: () {
                       controller.toggleShowContent();

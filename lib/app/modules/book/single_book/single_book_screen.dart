@@ -28,8 +28,7 @@ class SingleBookScreen extends GetView<BookController> {
           physics: const BouncingScrollPhysics(),
           slivers: [
             GetBuilder<BookController>(
-              initState: (_) =>
-                  controller.getComments(int.parse(controller.book!.id)),
+              initState: (_) => controller.getComments(controller.book!.id),
               builder: (_) {
                 return SliverAppBar(
                   pinned: true,
@@ -89,8 +88,7 @@ class SingleBookScreen extends GetView<BookController> {
                                         ),
                                       ),
                                       Visibility(
-                                        visible:
-                                            controller.book!.offCount() > 0,
+                                        visible: controller.book!.offCount > 0,
                                         child: Positioned(
                                           right: 0,
                                           child: Container(
@@ -100,7 +98,7 @@ class SingleBookScreen extends GetView<BookController> {
                                               color: kGreenAccentColor,
                                             ),
                                             child: Text(
-                                              '${controller.book!.offCount()}%',
+                                              '${controller.book!.offCount}%',
                                               style: kBodyText.copyWith(
                                                 color: kWhiteColor,
                                                 fontSize: 10,
@@ -195,9 +193,9 @@ class SingleBookScreen extends GetView<BookController> {
                                       children: [
                                         Visibility(
                                           visible:
-                                              controller.book!.offCount() > 0,
+                                              controller.book!.offCount > 0,
                                           child: Text(
-                                            '${controller.book!.sPrice.seRagham()} تومان / ',
+                                            '${controller.book!.sPrice?.seRagham()} تومان / ',
                                             style: kBodyText.copyWith(
                                               color: kDarkRedColor,
                                             ),
@@ -208,7 +206,7 @@ class SingleBookScreen extends GetView<BookController> {
                                           style: TextStyle(
                                             color: kDarkRedColor,
                                             decoration:
-                                                controller.book!.offCount() > 0
+                                                controller.book!.offCount > 0
                                                     ? TextDecoration.lineThrough
                                                     : null,
                                           ),
@@ -222,7 +220,8 @@ class SingleBookScreen extends GetView<BookController> {
                                           Routes.commentsScreen,
                                           arguments: controller.comments,
                                           parameters: {
-                                            'bookId': controller.book!.id,
+                                            'bookId':
+                                                controller.book!.id.toString(),
                                           },
                                         );
                                       },
@@ -243,18 +242,20 @@ class SingleBookScreen extends GetView<BookController> {
                                       color: kGreenAccentColor,
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
-                                        children: const [
-                                          Iconify(
+                                        children: [
+                                          const Iconify(
                                             Ep.video_play,
                                             // size: 18,
                                             color: kWhiteColor,
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             width: 5,
                                           ),
                                           Text(
-                                            'گوش دادن نسخه دمو',
-                                            style: TextStyle(
+                                            controller.purchasedBook
+                                                ? 'گوش دادن'
+                                                : 'گوش دادن نسخه دمو',
+                                            style: const TextStyle(
                                               color: kWhiteColor,
                                             ),
                                           ),
@@ -273,55 +274,70 @@ class SingleBookScreen extends GetView<BookController> {
                 );
               },
             ),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: StickyTabBarDelegate(
-                child: GetBuilder<BookController>(
-                  builder: (_) {
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      decoration: BoxDecoration(
-                        color: kGreenAccentColor,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(controller.containerRadius),
-                        ),
-                      ),
-                      margin: EdgeInsets.symmetric(
-                          horizontal: controller.containerMargin),
-                      alignment: Alignment.center,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {},
-                            child: const Text(
-                              'خرید نسخه صوتی',
-                              style: TextStyle(
-                                color: kWhiteColor,
-                                fontWeight: kWeightBold,
+            !controller.purchasedBook
+                ? SliverPersistentHeader(
+                    pinned: true,
+                    delegate: StickyTabBarDelegate(
+                      child: GetBuilder<BookController>(
+                        builder: (_) {
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                              color: kGreenAccentColor,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(controller.containerRadius),
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          GestureDetector(
-                            onTap: () {},
-                            child: const Text(
-                              'خرید نسخه الکترونیکی',
-                              style: TextStyle(
-                                color: kWhiteColor,
-                                fontWeight: kWeightBold,
-                              ),
+                            margin: EdgeInsets.symmetric(
+                                horizontal: controller.containerMargin),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    controller.addToCart();
+                                  },
+                                  borderRadius: BorderRadius.horizontal(
+                                    right: Radius.circular(
+                                        controller.containerRadius),
+                                  ),
+                                  child: const Text(
+                                    'خرید نسخه صوتی',
+                                    style: TextStyle(
+                                      color: kWhiteColor,
+                                      fontWeight: kWeightBold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    controller.addToSubscribeBooks();
+                                  },
+                                  borderRadius: BorderRadius.horizontal(
+                                    left: Radius.circular(
+                                        controller.containerRadius),
+                                  ),
+                                  child: const Text(
+                                    'افزودن به اشتراک',
+                                    style: TextStyle(
+                                      color: kWhiteColor,
+                                      fontWeight: kWeightBold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
-              ),
-            ),
+                    ),
+                  )
+                : const SliverToBoxAdapter(child: SizedBox.shrink()),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               sliver: GetBuilder<BookController>(builder: (_) {

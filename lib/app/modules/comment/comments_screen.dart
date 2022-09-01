@@ -47,7 +47,7 @@ class CommentsScreen extends GetView<CommentController> {
                               int.parse(comment.time) * 1000)
                           .toPersianDate();
                       return FutureBuilder(
-                        future: controller.getUser(int.parse(comment.userId)),
+                        future: controller.getUser(int.parse(comment.uId)),
                         builder: (context, AsyncSnapshot<User?> snapshot) {
                           if (snapshot.hasData &&
                               snapshot.connectionState ==

@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/core/utils/app_constants.dart';
+import 'package:gosheno/app/core/utils/extensions.dart';
 import 'package:gosheno/app/data/models/book_model.dart';
 import 'package:gosheno/app/modules/home/home_controller.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AudioPlayerController extends GetxController {
   final player = Get.find<HomeController>().player;
@@ -28,11 +31,14 @@ class AudioPlayerController extends GetxController {
   double? dragValue;
   bool showBookContent = true;
 
+  Duration startTimeTotal = const Duration(seconds: 1);
+  Duration startTimeDay = const Duration(seconds: 1);
+
   @override
   void onInit() {
     super.onInit();
     selectedSong = MediaItem(
-      id: _book.id,
+      id: _book.id.toString(),
       title: _book.name,
       artist: _book.author,
       displayDescription: _book.short,
@@ -47,6 +53,62 @@ class AudioPlayerController extends GetxController {
     _listenToCurrentPosition();
     _listenToTotalDuration();
     player.play();
+  }
+
+  setReadingTime() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String timeTotal = pref.getString(AppConstants.readingTimeTotalKey) ?? '0';
+    String timeDay = pref.getString(AppConstants.readingTimeDayKey) ?? '0';
+    if (timeDay == '0' && timeTotal == '0') {
+      Timer(const Duration(seconds: 1), () {
+        pref.setString(
+            AppConstants.readingTimeDayKey, '$startTimeDay/${DateTime.now()}');
+        pref.setString(
+            AppConstants.readingTimeTotalKey, startTimeTotal.toString());
+      });
+    } //
+    else {
+      if (timeDay == '0') {
+        Timer(const Duration(seconds: 1), () {
+          pref.setString(AppConstants.readingTimeDayKey,
+              '$startTimeDay/${DateTime.now()}');
+
+          startTimeTotal = timeTotal.parseDuration();
+          Duration newTime = startTimeTotal + const Duration(seconds: 1);
+          pref.setString(AppConstants.readingTimeTotalKey, newTime.toString());
+        });
+      } //
+      else {
+        DateTime day = (timeDay.split('/').last).toDate();
+        DateTime now = DateTime.now();
+        if (day.day == now.day &&
+            day.month == now.month &&
+            day.year == now.year) {
+          Timer(const Duration(seconds: 1), () {
+            startTimeDay = (timeDay.split('/').first).parseDuration();
+            Duration newTimeDay = startTimeDay + const Duration(seconds: 1);
+            pref.setString(AppConstants.readingTimeDayKey,
+                '$newTimeDay/${DateTime.now()}');
+
+            startTimeTotal = timeTotal.parseDuration();
+            Duration newTime = startTimeTotal + const Duration(seconds: 1);
+            pref.setString(
+                AppConstants.readingTimeTotalKey, newTime.toString());
+          });
+        } //
+        else {
+          Timer(const Duration(seconds: 1), () {
+            pref.setString(AppConstants.readingTimeDayKey,
+                '$startTimeDay/${DateTime.now()}');
+
+            startTimeTotal = timeTotal.parseDuration();
+            Duration newTime = startTimeTotal + const Duration(seconds: 1);
+            pref.setString(
+                AppConstants.readingTimeTotalKey, newTime.toString());
+          });
+        }
+      }
+    }
   }
 
   Future<void> _init() async {
@@ -64,7 +126,8 @@ class AudioPlayerController extends GetxController {
       else {
         await player.setAudioSource(
           LockCachingAudioSource(
-            Uri.parse('${AppConstants.baseUrl}${_book.soundDemo}'),
+            Uri.parse(
+                '${AppConstants.baseUrl}${_book.soundDemo ?? _book.soundLink}'),
             tag: selectedSong,
           ),
         );
@@ -97,7 +160,7 @@ class AudioPlayerController extends GetxController {
       } else {
         buttonNotifier.value = ButtonState.paused;
         player.seek(Duration.zero);
-        player.stop();
+        stop();
       }
     });
   }
@@ -109,6 +172,12 @@ class AudioPlayerController extends GetxController {
         current: position,
         total: oldState.total,
       );
+      // print(position.toString().split('.').last);
+      if (double.parse(position.toString().split('.').last.substring(0, 1)) <
+          2) {
+        // print(position);
+        setReadingTime();
+      }
     });
   }
 

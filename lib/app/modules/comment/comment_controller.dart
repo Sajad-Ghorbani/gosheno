@@ -7,7 +7,6 @@ import 'package:gosheno/app/data/provider/user_api_provider.dart';
 import 'package:gosheno/app/data/repository/book_repository.dart';
 import 'package:gosheno/app/data/repository/user_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 import '../../data/models/comment_model.dart';
 import '../../data/models/user_model.dart';
@@ -29,7 +28,7 @@ class CommentController extends GetxController {
   }
 
   @override
-  void onClose(){
+  void onClose() {
     super.onClose();
     commentTextController.dispose();
   }
@@ -68,17 +67,15 @@ class CommentController extends GetxController {
   Future<User?> getUser(int userId) async {
     try {
       UserRepository userRepository = UserRepository(
-        apiClient: UserApiClient(
-          httpClient: http.Client(),
-        ),
+        apiClient: UserApiClient(),
       );
       User? user;
       var response = await userRepository.getUserInfo(id: userId);
-      if(response['status']){
+      if (response['status']) {
         user = response['user'];
         return user;
-      }//
-      else{
+      } //
+      else {
         log('error in get user');
       }
     } on Exception catch (_) {

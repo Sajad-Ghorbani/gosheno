@@ -101,28 +101,32 @@ class LibraryScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         Book book = controller.getBook(index);
                         List<Book> myBooks = Get.find<HomeController>().myBooks;
+                        bool isBookmarked =
+                            myBooks.any((myBook) => myBook.id == book.id);
                         if (controller.selectedIndex == 1) {
-                          bool isBookmarked =
-                              myBooks.any((myBook) => myBook.id == book.id);
                           return BookItem(
                             isBookmarked: isBookmarked,
                             book: book,
+                            tag: 'buy',
                           );
                         } else if (controller.selectedIndex == 2) {
-                          bool isBookmarked =
-                              myBooks.any((myBook) => myBook.id == book.id);
                           return BookItem(
-                              book: book, isBookmarked: isBookmarked);
+                            book: book,
+                            isBookmarked: isBookmarked,
+                            tag: 'share',
+                          );
                         } else if (controller.selectedIndex == 3) {
-                          bool isBookmarked =
-                              myBooks.any((myBook) => myBook.id == book.id);
                           return BookItem(
-                              book: book, isBookmarked: isBookmarked);
+                            book: book,
+                            isBookmarked: isBookmarked,
+                            tag: 'favorite',
+                          );
                         } else {
-                          bool isBookmarked =
-                              myBooks.any((myBook) => myBook.id == book.id);
                           return BookItem(
-                              book: book, isBookmarked: isBookmarked);
+                            book: book,
+                            isBookmarked: isBookmarked,
+                            tag: 'all',
+                          );
                         }
                       },
                     ),

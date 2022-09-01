@@ -12,9 +12,11 @@ class BookItem extends StatelessWidget {
     Key? key,
     required this.book,
     required this.isBookmarked,
+    required this.tag,
   }) : super(key: key);
   final Book book;
   final bool isBookmarked;
+  final String tag;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class BookItem extends StatelessWidget {
       onTap: () {
         Get.toNamed(
           Routes.singleBookScreen,
-          parameters: {'tag': 'lib-${book.enName}'},
+          parameters: {'tag': '$tag-${book.enName}'},
           arguments: {book, isBookmarked},
         );
       },
@@ -38,7 +40,7 @@ class BookItem extends StatelessWidget {
               width: 100,
               padding: const EdgeInsets.all(10),
               child: Hero(
-                tag: 'lib-${book.enName}',
+                tag: '$tag-${book.enName}',
                 child: CachedNetworkImage(
                   imageUrl: '${AppConstants.baseUrl}${book.pic}',
                 ),
@@ -64,11 +66,6 @@ class BookItem extends StatelessWidget {
                       color: kGreyColor,
                       fontSize: 12,
                     ),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('پخش آفلاین'),
                   ),
                 ],
               ),

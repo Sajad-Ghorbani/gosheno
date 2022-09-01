@@ -9,6 +9,7 @@ class AppThemeData {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: kWhiteGreyColor,
+      primaryColor: kGreenAccentColor,
       canvasColor: kWhiteGreyColor,
       colorScheme: const ColorScheme(
         brightness: Brightness.light,

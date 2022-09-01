@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/global_widgets/circle_button_widget.dart';
 import 'package:gosheno/app/global_widgets/custom_text_field.dart';
 import 'package:gosheno/app/global_widgets/loading.dart';
@@ -23,9 +24,11 @@ class VerifyPhoneScreen extends GetView<UserController> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const Spacer(),
                     CustomTextField(
                       labelText: 'کد ارسال شده را وارد کنید',
                       controller: controller.signupCodeController,
+                      keyboardType: TextInputType.number,
                       prefixIcon: const Padding(
                         padding: EdgeInsets.all(10),
                         child: Iconify(
@@ -65,7 +68,16 @@ class VerifyPhoneScreen extends GetView<UserController> {
                                 ? controller.sendSms(true, context)
                                 : null;
                           },
-                          child: const Text('ارسال مجدد کد'),
+                          child: Obx(
+                            () => Text(
+                              'ارسال مجدد کد',
+                              style: TextStyle(
+                                color: controller.resendTime.value == 60
+                                    ? kBlackColor
+                                    : kGreyColor,
+                              ),
+                            ),
+                          ),
                         ),
                         Container(
                           decoration: const BoxDecoration(
@@ -84,6 +96,34 @@ class VerifyPhoneScreen extends GetView<UserController> {
                         const Text('ثانیه'),
                       ],
                     ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () {
+                        Get.back();
+                        Get.back();
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'عضو گوشنو هستید؟',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            'ورود به حساب',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              color: kGreenAccentColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
