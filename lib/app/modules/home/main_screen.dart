@@ -30,7 +30,7 @@ class MainScreen extends GetView<HomeController> {
         body: SafeArea(
           child: GetBuilder<HomeController>(builder: (_) {
             return PageTransitionSwitcher(
-              duration: const Duration(seconds: 1),
+              duration: const Duration(milliseconds: 400),
               transitionBuilder:
                   (child, primaryAnimation, secondaryAnimation) {
                 return SharedAxisTransition(

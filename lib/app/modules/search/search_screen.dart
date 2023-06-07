@@ -42,6 +42,16 @@ class SearchScreen extends StatelessWidget {
                   onChanged: (value) {
                     controller.search(value);
                   },
+                  onTap: () {
+                    if (controller.searchController.selection ==
+                        TextSelection.fromPosition(TextPosition(
+                            offset:
+                                controller.searchController.text.length - 1))) {
+                      controller.searchController.selection =
+                          TextSelection.fromPosition(TextPosition(
+                              offset: controller.searchController.text.length));
+                    }
+                  },
                 ),
               ),
               Expanded(

@@ -14,8 +14,8 @@ class AppConstants {
 
   static var dioOptions = BaseOptions(
     headers: {
-      HttpHeaders.authorizationHeader:
-          'bd6d553fc3af11c7ba3793d87ef28e53',
+      HttpHeaders.authorizationHeader: 'bd6d553fc3af11c7ba3793d87ef28e53',
+      'Accept': 'application/json',
     },
     baseUrl: 'https://gosheno.com/api/v1',
     contentType: 'application/json',

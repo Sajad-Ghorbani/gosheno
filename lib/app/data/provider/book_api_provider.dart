@@ -270,6 +270,7 @@ class BookApiClient {
       );
       if (response.statusCode == 200) {
         var result = response.data;
+        log(result.toString());
         Book book = Book.fromJson(result);
         return {
           'status': true,
@@ -281,8 +282,11 @@ class BookApiClient {
         };
       }
     } //
-    on DioError catch (e) {
+    on DioException catch (e) {
       log(e.toString());
+      return {
+        'status': false,
+      };
     }
   }
 
@@ -414,6 +418,7 @@ class BookApiClient {
       );
       if (response.statusCode == 200) {
         var result = response.data;
+        log(result.toString());
         List<Book> books = [];
         for (var item in result) {
           var bookResponse = await getSimpleBookInfo(int.parse(item['book']));
@@ -433,6 +438,9 @@ class BookApiClient {
     } //
     catch (e) {
       log(e.toString());
+      return {
+        'status': false,
+      };
     }
   }
 
@@ -523,7 +531,7 @@ class BookApiClient {
     }
   }
 
-  Future addActiveBook(int userId, int bookId,String bookName) async {
+  Future addActiveBook(int userId, int bookId, String bookName) async {
     try {
       var response = await dio.get(
         '/addactive/$userId/$bookId',
@@ -544,7 +552,7 @@ class BookApiClient {
         };
       }
     } //
-    on DioError catch (e) {
+    on DioException catch (e) {
       if (e.response!.statusCode == 403) {
         return {
           'status': false,

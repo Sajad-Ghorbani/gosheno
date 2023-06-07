@@ -20,7 +20,8 @@ class EditProfile extends StatelessWidget {
               builder: (controller) {
                 controller.nameController.text = controller.user!.name;
                 controller.phoneController.text = controller.user?.mobile ?? '';
-                controller.emailController.text = controller.user?.email ?? '';
+                String currentEmail = controller.user?.email ?? '';
+                controller.emailController.text = currentEmail;
                 return Container(
                   height: MediaQuery.of(context).size.height * 0.8,
                   decoration: const BoxDecoration(
@@ -62,6 +63,7 @@ class EditProfile extends StatelessWidget {
                               labelText: 'موبایل',
                               controller: controller.phoneController,
                               keyboardType: TextInputType.phone,
+                              enabled: false,
                             ),
                             const SizedBox(height: 10),
                             CustomTextField(
@@ -115,7 +117,7 @@ class EditProfile extends StatelessWidget {
                             const SizedBox(height: 10),
                             CircleButtonWidget(
                               onTap: () {
-                                controller.updateProfile();
+                                controller.updateProfile(currentEmail);
                               },
                               color: kGreenAccentColor,
                               height: 45,

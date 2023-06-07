@@ -69,10 +69,9 @@ class CommentController extends GetxController {
       UserRepository userRepository = UserRepository(
         apiClient: UserApiClient(),
       );
-      User? user;
       var response = await userRepository.getUserInfo(id: userId);
       if (response['status']) {
-        user = response['user'];
+        User user = response['user'];
         return user;
       } //
       else {

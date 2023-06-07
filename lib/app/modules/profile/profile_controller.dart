@@ -11,7 +11,6 @@ import 'package:gosheno/app/data/models/coupon_model.dart';
 import 'package:gosheno/app/data/provider/user_api_provider.dart';
 import 'package:gosheno/app/data/repository/user_repository.dart';
 import 'package:gosheno/app/routes/app_pages.dart';
-import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,7 +31,7 @@ class ProfileController extends GetxController {
 
   User? user;
   String userName = '';
-  bool showLoading = true;
+  bool showLoading = false;
   int subscribe = 0;
   String timeReadingTotal = '0';
   String timeReadingDay = '0';
@@ -93,7 +92,6 @@ class ProfileController extends GetxController {
         log('error get user.');
       }
     }
-    showLoading = false;
     update();
   }
 
@@ -153,7 +151,6 @@ class ProfileController extends GetxController {
         }
       }
     }
-    showLoading = false;
     update();
   }
 
@@ -173,7 +170,7 @@ class ProfileController extends GetxController {
     }
   }
 
-  void updateProfile() async {
+  void updateProfile(String currentEmail) async {
     showLoading = true;
     update();
     String name = nameController.text.trim();
@@ -184,13 +181,12 @@ class ProfileController extends GetxController {
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       int userId = pref.getInt(AppConstants.userIdKey) ?? 0;
-      if (name.isEmpty || phone.isEmpty) {
-        ConstantsMethods.showToast('نام و شماره تلفن را وارد کنید', kRedColor);
+      if (name.isEmpty) {
+        ConstantsMethods.showToast('نام را وارد کنید', kRedColor);
         return;
       } //
-      else if (!phone.isValidIranianMobileNumber()) {
-        ConstantsMethods.showToast(
-            'شماره موبایل به درستی وارد نشده است', kRedColor);
+      else if (!email.isEmail) {
+        ConstantsMethods.showToast('ایمیل به درستی وارد نشده است', kRedColor);
         return;
       } //
       else if (password != confirmPassword) {
@@ -203,10 +199,11 @@ class ProfileController extends GetxController {
           id: userId,
           name: name,
           phoneNumber: phone,
-          email: email,
+          email: email == currentEmail ? '' : email,
           password: password,
           sex: selectedGender,
         );
+        print(response);
         if (response['status']) {
           ConstantsMethods.showToast(response['message'], kGreenAccentColor);
           nameController.clear();
@@ -218,7 +215,7 @@ class ProfileController extends GetxController {
           Get.back();
         } //
         else {
-          ConstantsMethods.showToast(response['message'], kRedColor);
+          ConstantsMethods.showToast(response['error'], kRedColor);
         }
       }
     } //
@@ -233,7 +230,7 @@ class ProfileController extends GetxController {
   }
 
   void chargeWallet() async {
-    String amount = walletAmountController.text.trim();
+    String amount = walletAmountController.text.trim().replaceAll(',', '');
     if (amount.isEmpty) {
       ConstantsMethods.showToast('مبلغ را وارد کنید', kRedColor);
       return;
@@ -269,6 +266,39 @@ class ProfileController extends GetxController {
     await launchUrl(
       Uri.parse(
           'https://gitiget.com/%d8%b3%d9%81%d8%a7%d8%b1%d8%b4-%d9%be%d8%b1%d9%88%da%98%d9%87/'),
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
+  void setWalletAmount(String value) {
+    if (value.isNotEmpty) {
+      int a = int.parse(value.replaceAll(',', ''));
+      if (a > 50000000) {
+        walletAmountController.text = '50,000,000';
+        walletAmountController.selection = TextSelection.fromPosition(
+          TextPosition(offset: walletAmountController.text.length),
+        );
+      }
+    }
+  }
+
+  void about() async {
+    await launchUrl(
+      Uri.parse('https://gosheno.com/about'),
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
+  void faq() async {
+    await launchUrl(
+      Uri.parse('https://gosheno.com/faq'),
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
+  void contactUs() async {
+    await launchUrl(
+      Uri.parse('https://gosheno.com/contact'),
       mode: LaunchMode.externalApplication,
     );
   }

@@ -295,38 +295,48 @@ class SingleBookScreen extends GetView<BookController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               mainAxisSize: MainAxisSize.max,
                               children: [
-                                InkWell(
-                                  onTap: () {
-                                    controller.addToCart();
-                                  },
-                                  borderRadius: BorderRadius.horizontal(
-                                    right: Radius.circular(
-                                        controller.containerRadius),
-                                  ),
-                                  child: const Text(
-                                    'خرید نسخه صوتی',
-                                    style: TextStyle(
-                                      color: kWhiteColor,
-                                      fontWeight: kWeightBold,
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () {
+                                      controller.addToCart();
+                                    },
+                                    borderRadius: BorderRadius.horizontal(
+                                      right: Radius.circular(
+                                          controller.containerRadius),
+                                    ),
+                                    child: const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'خرید نسخه صوتی',
+                                        style: TextStyle(
+                                          color: kWhiteColor,
+                                          fontWeight: kWeightBold,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(
-                                  width: 20,
+                                  width: 10,
                                 ),
-                                InkWell(
-                                  onTap: () {
-                                    controller.addToSubscribeBooks();
-                                  },
-                                  borderRadius: BorderRadius.horizontal(
-                                    left: Radius.circular(
-                                        controller.containerRadius),
-                                  ),
-                                  child: const Text(
-                                    'افزودن به اشتراک',
-                                    style: TextStyle(
-                                      color: kWhiteColor,
-                                      fontWeight: kWeightBold,
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () {
+                                      controller.addToSubscribeBooks();
+                                    },
+                                    borderRadius: BorderRadius.horizontal(
+                                      left: Radius.circular(
+                                          controller.containerRadius),
+                                    ),
+                                    child: const Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        'افزودن به اشتراک',
+                                        style: TextStyle(
+                                          color: kWhiteColor,
+                                          fontWeight: kWeightBold,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),

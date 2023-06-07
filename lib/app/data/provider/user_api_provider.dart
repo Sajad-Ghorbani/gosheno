@@ -48,14 +48,15 @@ class UserApiClient {
         log('error -get');
       }
     } //
-    on DioError catch (e) {
+    on DioException catch (e) {
       if (e.response!.statusCode == 500) {
         return {
           'status': false,
           'error':
               'خطایی در ارتباط با سرور رخ داده است. لطفا دوباره تلاش کنید.',
         };
-      } else if (e.response!.statusCode == 422) {
+      } //
+      else if (e.response!.statusCode == 422) {
         var result = e.response!.data;
         return {
           'status': false,
@@ -102,7 +103,7 @@ class UserApiClient {
         log('error -get');
       }
     } //
-    on DioError catch (e) {
+    on DioException catch (e) {
       if (e.response!.statusCode == 500) {
         return {
           'status': false,
@@ -210,7 +211,7 @@ class UserApiClient {
         'mobile': phoneNumber,
         'password': password,
         'email': email,
-        'sex': sex.toString(),
+        'sex': sex,
       });
       var response = await dio.request(
         '/user/edit/$id',
@@ -224,23 +225,34 @@ class UserApiClient {
           'message': result['message'],
         };
       } //
-      else if (response.statusCode == 422) {
-        var result = response.data;
+      else {
+        log('error -post');
+      }
+    } //
+    on DioException catch (e) {
+      if (e.response!.statusCode == 422) {
+        var result = e.response!.data;
+        List? passwordError = result['errors']['password'];
+        List? mobileError = result['errors']['mobile'];
+        List? emailError = result['errors']['email'];
+        List? sexError = result['errors']['sex'];
         return {
           'status': false,
-          'error': result['errors']['password'] ??
-              result['errors']['mobile'] ??
-              result['errors']['email'] ??
-              result['errors']['sex'],
+          'error': passwordError != null
+              ? passwordError.join('\n')
+              : mobileError != null
+                  ? mobileError.join('\n')
+                  : emailError != null
+                      ? emailError.join('\n')
+                      : sexError != null
+                          ? sexError.join('\n')
+                          : '',
         };
       } //
       else {
-        log('error -get');
+        log('error -post');
+        log(e.toString());
       }
-    } //
-    catch (e) {
-      log('error -post');
-      log(e.toString());
     }
   }
 
@@ -380,7 +392,7 @@ class UserApiClient {
       if (response.statusCode == 200) {
         return {
           'status': true,
-          'id':response.data['id'],
+          'id': response.data['id'],
         };
       } //
       else {

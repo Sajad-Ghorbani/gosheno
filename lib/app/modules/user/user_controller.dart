@@ -470,6 +470,8 @@ class UserController extends GetxController {
     var response = await userRepository.resetPassword(
       phoneNumber: phone,
     );
+    print('***************************************');
+    print(response);
     if (response['status']) {
       showLoading = false;
       update();

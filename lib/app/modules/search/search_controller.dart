@@ -22,20 +22,18 @@ class SearchController extends GetxController {
   }
 
   void search(String search) {
-    if (search.length > 3) {
-      if (_debounce?.isActive ?? false) _debounce?.cancel();
-      _debounce = Timer(const Duration(seconds: 1), () async {
-        var response = await _bookRepository.searchBook(search: search);
-        if (response['status']) {
-          books = response['books'];
-          update();
-        } //
-        else {
-          books = [];
-          update();
-        }
-      });
-    }
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(seconds: 1), () async {
+      var response = await _bookRepository.searchBook(search: search);
+      if (response['status']) {
+        books = response['books'];
+        update();
+      } //
+      else {
+        books = [];
+        update();
+      }
+    });
   }
 
   bool popSearch() {

@@ -1,5 +1,7 @@
 import 'package:animations/animations.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:gosheno/app/core/theme/app_color.dart';
 import 'package:gosheno/app/core/theme/app_text_theme.dart';
@@ -52,7 +54,6 @@ class SettingScreen extends StatelessWidget {
                       closedShape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
-                      transitionDuration: const Duration(milliseconds: 500),
                       closedBuilder: (context, action) => const Padding(
                         padding: EdgeInsets.fromLTRB(10, 10, 8, 10),
                         child: Iconify(
@@ -62,6 +63,10 @@ class SettingScreen extends StatelessWidget {
                         ),
                       ),
                       openBuilder: (context, action) => const EditProfile(),
+                      onClosed: (_) {
+                        controller.passwordController.clear();
+                        controller.confirmPasswordController.clear();
+                      },
                     ),
                   ],
                 ),
@@ -144,13 +149,23 @@ class SettingScreen extends StatelessWidget {
                             labelText: 'مبلغ را وارد کنید',
                             controller: controller.walletAmountController,
                             keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              CurrencyTextInputFormatter(
+                                decimalDigits: 0,
+                                symbol: '',
+                              ),
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            onChanged: (value) {
+                              controller.setWalletAmount(value);
+                            },
                           ),
                           const SizedBox(height: 10),
                           const Padding(
                             padding: EdgeInsets.all(10),
                             child: FittedBox(
                               child: Text(
-                                'حداقل مبلغ: 10.000 تومان و حداکثر: 50.000.000',
+                                'حداقل مبلغ: 10.000 تومان و حداکثر: 50.000.000 تومان',
                               ),
                             ),
                           ),
@@ -209,7 +224,7 @@ class SettingScreen extends StatelessWidget {
                 ),
                 tileColor: kWhiteGreyColor,
               ),
-              const SizedBox(height: 10),
+              const Divider(height: 0.2),
               ListTile(
                 title: const Text('کد تخفیف'),
                 trailing: const Icon(
@@ -218,6 +233,36 @@ class SettingScreen extends StatelessWidget {
                 ),
                 onTap: () {
                   Get.toNamed(Routes.couponScreen);
+                },
+                tileColor: kWhiteGreyColor,
+              ),
+              const SizedBox(height: 10),
+              ListTile(
+                title: const Text(
+                  'درباره ما',
+                ),
+                onTap: () {
+                  controller.about();
+                },
+                tileColor: kWhiteGreyColor,
+              ),
+              const Divider(height: 0.2),
+              ListTile(
+                title: const Text(
+                  'سوالات متداول',
+                ),
+                onTap: () {
+                  controller.faq();
+                },
+                tileColor: kWhiteGreyColor,
+              ),
+              const Divider(height: 0.2),
+              ListTile(
+                title: const Text(
+                  'تماس با ما',
+                ),
+                onTap: () {
+                  controller.contactUs();
                 },
                 tileColor: kWhiteGreyColor,
               ),
